@@ -50,6 +50,8 @@ app/google-services.json
 
 # AI analysis docs & dev notes
 docs/*
+!docs/assets/
+!docs/screenshots/
 !docs/USER_GUIDE.md
 !docs/USER_GUIDE_EN.md
 !docs/COMPATIBILITY.md
@@ -87,3 +89,6 @@ tools/mock-sunshine/.generated/
 app/nonRoot/release/baselineProfiles/
 
 !docs/resolution-hot-switch.md
+
+# Playwright MCP local artifacts
+.playwright-mcp/

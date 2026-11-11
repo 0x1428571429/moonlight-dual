@@ -1,32 +1,44 @@
 <div align="center">
-  <img src="./app/src/main/res/drawable/vplus.webp" width="100" alt="Moonlight V+ Logo">
+  <img src="./docs/assets/logo.png" width="120" alt="Moonlight Dual">
 
-  # Moonlight V+
+  # Moonlight Dual
 
-  [![GitHub Release](https://img.shields.io/github/v/release/qiin2333/moonlight-vplus?label=latest&style=flat-square)](https://github.com/qiin2333/moonlight-vplus/releases/latest)
   [![Android](https://img.shields.io/badge/Android-5.0+-34A853?style=flat-square&logo=android&logoColor=white)](https://developer.android.com/about/versions)
   [![License](https://img.shields.io/badge/license-GPL%20v3-EF9421?style=flat-square)](LICENSE.txt)
-  [![GitHub Stars](https://img.shields.io/github/stars/qiin2333/moonlight-vplus?style=flat-square)](https://github.com/qiin2333/moonlight-vplus/stargazers)
-  [![Downloads](https://img.shields.io/github/downloads/qiin2333/moonlight-vplus/total?style=flat-square&color=blue)](https://github.com/qiin2333/moonlight-vplus/releases)
 
-  **An enhanced Android game streaming client based on [Moonlight](https://github.com/moonlight-stream/moonlight-android)**
+  **A game-streaming client for Sunshine, built for dual-screen handhelds.**
 
   English | [中文](README.md)
-
-  <a href="./assets/readme/moonlight-vplus-promo.mp4">
-    <img src="./assets/readme/moonlight-vplus-promo.gif" width="800" alt="Moonlight V+: app launch, game library, and game preview">
-  </a>
-  <br/>
-  <sub>Launch → Library → Connect → Game preview · Click for the high-quality video</sub>
-  <br/>
-  <sub>Android UI recording composited with the official No Man's Sky trailer. <a href="./assets/readme/README.md">Media credits</a></sub>
 </div>
 
 ---
 
+> **About this project**: Moonlight Dual is a modified version of [qiin2333/moonlight-vplus](https://github.com/qiin2333/moonlight-vplus) (Moonlight V+), which itself derives from [moonlight-android](https://github.com/moonlight-stream/moonlight-android). Thanks to both upstream projects and their contributors; this project keeps the GPL v3 license.
+
+**Moonlight Dual** is a Sunshine streaming client made for dual-screen handhelds (such as the AYN Thor): **the main screen shows the picture, the second screen is your control console**.
+
+It is an Android app that streams games and the desktop from a PC running Sunshine / Foundation Sunshine to a phone, handheld or tablet, with gamepad, touch and keyboard/mouse support. Its interface is redesigned around two screens: the big one is for picking and watching, the small one for monitoring, tuning and quick actions, so you can control a stream without covering the picture.
+
+- **Main screen**: a Steam Big Picture–style host and app picker, fully gamepad-driven (A connect / B exit / X add host / Y more / START settings).
+- **Second screen**: while streaming it shows live monitoring (FPS history, frame time, 1% low, RTT, packet loss, latency breakdown), bitrate control, input toggles and quick keys (Esc / Win / Alt+Tab / keyboard / HDR / mic / virtual pad / disconnect); while browsing it shows host status (online, streaming, resume, last connected), the app panel and the menu.
+- **Game menu**: opens as a full-screen second page on the second screen, with wrapping quick buttons, never covering the main picture.
+- **Dialogs follow you**: they appear on the screen you last interacted with.
+
+## Screens
+
+<p align="center"><img src="docs/screenshots/dual-hosts.png" width="520" alt="Browse: pick a host on the main screen, host status on the second"><br/><sub>Browse: pick a host on the main screen, host status on the second</sub></p>
+
+<p align="center"><img src="docs/screenshots/dual-apps.png" width="520" alt="Pick an app: apps on the main screen, app panel and stream parameters on the second"><br/><sub>Pick an app: apps on the main screen, app panel and stream parameters on the second</sub></p>
+
+<p align="center"><img src="docs/screenshots/dual-menu.png" width="520" alt="Second-screen menu: settings, about, EasyTier, resume session, and more"><br/><sub>Second-screen menu: settings, about, EasyTier, resume session, and more</sub></p>
+
+<p align="center"><img src="docs/screenshots/dual-stream-settings.png" width="520" alt="Stream settings: adjust stream parameters from the second screen"><br/><sub>Stream settings: adjust stream parameters from the second screen</sub></p>
+
+<p align="center"><img src="docs/screenshots/dual-streaming-second-screen.png" width="900" alt="Second screen while streaming: monitor / bitrate / input / quick keys"><br/><sub>Second screen while streaming: monitor / bitrate / input / quick keys</sub></p>
+
 ## What's Different from Upstream Moonlight
 
-Moonlight V+ extends [moonlight-android](https://github.com/moonlight-stream/moonlight-android) with a wide range of enhancements while maintaining full compatibility with the upstream streaming protocol.
+Moonlight Dual extends [moonlight-android](https://github.com/moonlight-stream/moonlight-android) with a wide range of enhancements while maintaining full compatibility with the upstream streaming protocol.
 
 | Category | Feature | Description | Since |
 |----------|---------|-------------|:-----:|
@@ -54,7 +66,7 @@ Moonlight V+ extends [moonlight-android](https://github.com/moonlight-stream/moo
 | | Audio vibration | Real-time bass energy drives haptic feedback (device / gamepad / both) | `12.7.0` |
 | | | Three scene modes: Game (sustained rumble), Music (beat pulses), Auto | |
 
-To choose a feature by what you want to do, see the [Moonlight V+ feature guide](docs/VPLUS_FEATURES_EN.md): Crown profiles, Foundation Sunshine actions, displays, haptics, and frame generation.
+To choose a feature by what you want to do, see the [Moonlight Dual feature guide](docs/VPLUS_FEATURES_EN.md): Crown profiles, Foundation Sunshine actions, displays, haptics, and frame generation.
 
 ## Getting Started
 
@@ -67,7 +79,7 @@ To choose a feature by what you want to do, see the [Moonlight V+ feature guide]
 
 ### Installation
 
-Download the latest APK from [Releases](https://github.com/qiin2333/moonlight-vplus/releases/latest), install it, and pair it with your host.
+Download the latest APK from [Releases](https://github.com/0x1428571429/moonlight-dual/releases/latest), install it, and pair it with your host.
 
 For the first stream, start with a conservative profile:
 
@@ -77,12 +89,12 @@ For the first stream, start with a conservative profile:
 - 10-20 Mbps bitrate
 - Host PC connected by Ethernet when possible
 
-After that is stable, raise resolution, frame rate, bitrate, HEVC / AV1, HDR, and V+ enhanced options one at a time.
+After that is stable, raise resolution, frame rate, bitrate, HEVC / AV1, HDR, and enhanced options one at a time.
 
 ### Host Choice
 
-- **Foundation Sunshine (recommended)**: the companion host for Moonlight V+, providing standard streaming and supported V+ extensions such as microphone forwarding and host display control. Feature availability depends on the host version.
-- **Sunshine**: supports standard Moonlight streaming; some V+ extensions need Foundation Sunshine.
+- **Foundation Sunshine (recommended)**: the companion host for Moonlight Dual, providing standard streaming and supported extensions such as microphone forwarding and host display control. Feature availability depends on the host version.
+- **Sunshine**: supports standard Moonlight streaming; some extensions need Foundation Sunshine.
 - **GeForce Experience / NVIDIA GameStream**: a legacy compatibility path for existing setups. Choose Foundation Sunshine for a new installation.
 
 ### If Something Goes Wrong
@@ -94,10 +106,10 @@ After that is stable, raise resolution, frame rate, bitrate, HEVC / AV1, HDR, an
 
 Useful references:
 
-- [Moonlight V+ Q&A](FAQ_EN.md)
+- [Moonlight Dual Q&A](FAQ_EN.md)
 - [Moonlight setup guide](https://github.com/moonlight-stream/moonlight-docs/wiki/Setup-Guide)
 - [Moonlight troubleshooting guide](https://github.com/moonlight-stream/moonlight-docs/wiki/Troubleshooting)
-- [V+ feature guide](docs/USER_GUIDE_EN.md)
+- [Feature guide](docs/USER_GUIDE_EN.md)
 - [First connection with Foundation Sunshine](docs/GETTING_STARTED_EN.md)
 - [Foundation Sunshine compatibility matrix](docs/COMPATIBILITY_EN.md)
 - [Backups and migration](docs/BACKUP_AND_MIGRATION_EN.md)
@@ -107,8 +119,8 @@ Useful references:
 Install JDK 17, Android SDK 36, Build Tools 36.0.0, NDK 28.2.13676358, and CMake 3.22.1 first. The build also needs two Git submodules and a separate [audio-haptics SDK](https://github.com/AlkaidLab/moonlight-audio-haptics) checkout; see [CI](.github/workflows/android-ci.yml) for the pinned revision.
 
 ```bash
-git clone --recurse-submodules https://github.com/qiin2333/moonlight-vplus.git
-cd moonlight-vplus
+git clone --recurse-submodules https://github.com/0x1428571429/moonlight-dual.git
+cd moonlight-dual
 git clone https://github.com/AlkaidLab/moonlight-audio-haptics.git ../moonlight-audio-haptics
 git -C ../moonlight-audio-haptics checkout b3f97c3bb7500ea7b1985aea568e5c7b40308d3b
 ./gradlew :app:assembleNonRootDebug -PaudioHapticsSdkDir="$PWD/../moonlight-audio-haptics"
@@ -148,7 +160,8 @@ Before reporting a problem, check the [Q&A](FAQ_EN.md). See the [privacy notice]
 
 ## Acknowledgments
 
-- [Moonlight Android](https://github.com/moonlight-stream/moonlight-android) — upstream project
+- [Moonlight V+](https://github.com/qiin2333/moonlight-vplus) — direct upstream; this project is modified from it
+- [Moonlight Android](https://github.com/moonlight-stream/moonlight-android) — original upstream project
 - [Sunshine](https://github.com/LizardByte/Sunshine) — open-source game streaming host
 
 ## License

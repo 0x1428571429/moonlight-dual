@@ -437,12 +437,23 @@ class PerformanceOverlayManager(
         activity.runOnUiThread {
             showOverlayIfNeeded()
             updateBatteryDisplayIfNeeded()
+            // 副屏等外部观察者始终拿到最新快照，即使主屏没有开启 HUD。
+            snapshotListener?.let { listener ->
+                val snapshot = buildHudSnapshot(performanceInfo)
+                lastHudSnapshot = snapshot
+                listener(snapshot)
+            }
             if (isHudStyle()) {
                 updateHud(performanceInfo)
             } else {
                 updatePerformanceViewsWithStyledText(performanceInfo)
             }
         }
+    }
+
+    /** 副屏监控面板订阅性能快照；回调在主线程。传 null 取消订阅。 */
+    fun setSnapshotListener(listener: ((PerfHudSnapshot) -> Unit)?) {
+        snapshotListener = listener
     }
 
     fun setActualDisplayRefreshRate(refreshRate: Float) {
@@ -668,7 +679,7 @@ class PerformanceOverlayManager(
         } else {
             String.format(Locale.getDefault(), "%.2f", performanceInfo.decodeTimeMs)
         }
-        view.text = createStyledText(iconRes, latencyValue, "ms", 0xFFD597E3.toInt(), iconEmoji, textSizePx = view.textSize)
+        view.text = createStyledText(iconRes, latencyValue, "ms", 0xFF66C0F4.toInt(), iconEmoji, textSizePx = view.textSize)
     }
 
     private fun updateHostLatencyText(view: TextView, performanceInfo: PerformanceInfo) {
@@ -677,7 +688,7 @@ class PerformanceOverlayManager(
             view.text = createStyledText(R.drawable.phc_perf_monitor, latencyValue, "ms", 0xFF009688.toInt(), textSizePx = view.textSize)
         } else {
             // 空置时保持原版本的 🧋 emoji
-            view.text = createStyledText(null, "Ver.V+", "", 0xFF009688.toInt(), iconEmoji = "🧋", textSizePx = view.textSize)
+            view.text = createStyledText(null, "Dual", "", 0xFF009688.toInt(), iconEmoji = "🧋", textSizePx = view.textSize)
         }
     }
 
@@ -1703,6 +1714,7 @@ class PerformanceOverlayManager(
 
     private var hudVisibility = PerfHudVisibility()
     private var lastHudSnapshot: PerfHudSnapshot? = null
+    private var snapshotListener: ((PerfHudSnapshot) -> Unit)? = null
     private var hudHintChecked = false
 
     private fun buildHudStrings(): PerfHudStrings {

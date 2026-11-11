@@ -15,9 +15,9 @@
     <color name="ui_shell_text_disabled_secondary">#55C9D0D8</color>
     <color name="ui_shell_text_shadow">#88000000</color>
     <color name="ui_shell_text_shadow_strong">#AA000000</color>
-    <color name="ui_shell_accent">#FF8FA3</color>
-    <color name="ui_shell_accent_soft">#33FF6B9D</color>
-    <color name="ui_shell_accent_focus">#66FF6B9D</color>
+    <color name="ui_shell_accent">#7DBBFF</color>
+    <color name="ui_shell_accent_soft">#332F9BFF</color>
+    <color name="ui_shell_accent_focus">#662F9BFF</color>
     <color name="settings_page_background">#FF18191F</color>
     <color name="settings_background_overlay">#B31C1D24</color>
     <color name="pc_toolbar_menu_surface_start">#D923242B</color>
@@ -25,44 +25,44 @@
     <color name="pc_toolbar_menu_surface_end">#B81A1B21</color>
 
     <!-- Game menu palette for system dark theme. -->
-    <color name="game_menu_card_background">#FF2A2C34</color>
-    <color name="game_menu_text_primary">#EBF0F3</color>
-    <color name="game_menu_text_secondary">#B6C1C9</color>
-    <color name="game_menu_button_pressed">#FF33363F</color>
+    <color name="game_menu_card_background">#FF14202E</color>
+    <color name="game_menu_text_primary">#FFE6F1FA</color>
+    <color name="game_menu_text_secondary">#FF8FA5B8</color>
+    <color name="game_menu_button_pressed">#FF1B3047</color>
     <!-- Controller diagnostics need a stronger neutral outline than menu chrome. -->
     <color name="controller_diag_outline">#FFD7DCE4</color>
     <color name="controller_diag_control_surface">#FF3A3D46</color>
-    <color name="game_menu_list_item_pressed">#FF33363F</color>
-    <color name="game_menu_list_item_focused">#FF373A44</color>
-    <color name="game_menu_list_item_border">#0CFFFFFF</color>
-    <color name="game_menu_dialog_background">#FF1C1E24</color>
-    <color name="game_menu_opacity_popup_background">#ED23242B</color>
-    <color name="game_menu_dialog_border">#12FFFFFF</color>
-    <color name="game_menu_list_item_normal">#FF26282F</color>
+    <color name="game_menu_list_item_pressed">#FF1B3047</color>
+    <color name="game_menu_list_item_focused">#FF21405F</color>
+    <color name="game_menu_list_item_border">#2266C0F4</color>
+    <color name="game_menu_dialog_background">#FF0B131C</color>
+    <color name="game_menu_opacity_popup_background">#F00E1722</color>
+    <color name="game_menu_dialog_border">#4D66C0F4</color>
+    <color name="game_menu_list_item_normal">#FF152231</color>
     <color name="game_menu_danger_text">#FFFF8A8A</color>
 
     <color name="game_menu_super_card_background">#00000000</color>
-    <color name="game_menu_super_list_item_pressed">#3328323A</color>
-    <color name="game_menu_super_list_item_focused">#3DFFFFFF</color>
-    <color name="game_menu_super_list_item_border">#18FFFFFF</color>
+    <color name="game_menu_super_list_item_pressed">#FF1B3047</color>
+    <color name="game_menu_super_list_item_focused">#FF21405F</color>
+    <color name="game_menu_super_list_item_border">#2266C0F4</color>
 
-    <color name="app_dialog_choice_control_normal">#7AC9D0D8</color>
+    <color name="app_dialog_choice_control_normal">#7A8FA5B8</color>
 
     <!-- App dialog palette for system dark theme. -->
-    <color name="app_dialog_surface">#E61C1D22</color>
-    <color name="app_dialog_surface_elevated">#F223242B</color>
-    <color name="app_dialog_surface_gradient_start">#F22A2B34</color>
-    <color name="app_dialog_surface_gradient_center">#F223242B</color>
-    <color name="app_dialog_surface_gradient_end">#E61C1D22</color>
-    <color name="app_dialog_surface_pressed">#3328323A</color>
-    <color name="app_dialog_outline">#2EFFFFFF</color>
-    <color name="app_dialog_outline_strong">#4DFFFFFF</color>
-    <color name="app_dialog_text_primary">#F7F3F7</color>
-    <color name="app_dialog_text_secondary">#C9D0D8</color>
-    <color name="app_dialog_text_disabled">#66C9D0D8</color>
-    <color name="app_dialog_accent_soft">#33FF6B9D</color>
-    <color name="app_dialog_accent_focus">#66FF6B9D</color>
-    <color name="app_action_sheet_danger">#FFFF9AAA</color>
+    <color name="app_dialog_surface">#F214202E</color>
+    <color name="app_dialog_surface_elevated">#F2182A3B</color>
+    <color name="app_dialog_surface_gradient_start">#F2182A3B</color>
+    <color name="app_dialog_surface_gradient_center">#F214202E</color>
+    <color name="app_dialog_surface_gradient_end">#F20E1722</color>
+    <color name="app_dialog_surface_pressed">#331B3047</color>
+    <color name="app_dialog_outline">#4D66C0F4</color>
+    <color name="app_dialog_outline_strong">#8066C0F4</color>
+    <color name="app_dialog_text_primary">#FFE6F1FA</color>
+    <color name="app_dialog_text_secondary">#FF8FA5B8</color>
+    <color name="app_dialog_text_disabled">#668FA5B8</color>
+    <color name="app_dialog_accent_soft">#2666C0F4</color>
+    <color name="app_dialog_accent_focus">#4D66C0F4</color>
+    <color name="app_action_sheet_danger">#FFFF7A7A</color>
     <color name="app_action_sheet_divider">#1FFFFFFF</color>
     <color name="iperf_output_surface">#FF121318</color>
     <color name="iperf_output_text">#FFC9D0D8</color>
@@ -97,4 +97,5 @@
     <color name="easytier_text_secondary">#C9D0D8</color>
     <color name="easytier_warning">#FF7777</color>
 
+    <color name="game_menu_icon_tint">#FF8FC4EA</color>
 </resources>

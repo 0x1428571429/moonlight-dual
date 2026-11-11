@@ -63,7 +63,6 @@ import com.limelight.ui.AdapterFragment
 import com.limelight.ui.AdapterFragmentCallbacks
 import com.limelight.ui.FeatureGuideRegistry
 import com.limelight.ui.MoonWheelDrawable
-import com.limelight.ui.PixelMapBackgroundDrawable
 import com.limelight.ui.UiDismissKeyHandler
 import com.limelight.ui.ViewFeatureGuide
 import com.limelight.ui.ViewFeatureGuideStep
@@ -156,6 +155,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupWindow
+import android.widget.RelativeLayout
 import android.widget.Space
 import android.widget.TextView
 import android.widget.Toast
@@ -395,6 +395,7 @@ class PcView : ThemedActivity(), AdapterFragmentCallbacks, ShakeDetector.Listene
         UiHelper.showDecoderCrashDialog(this)
         inForeground = true
         startComputerUpdates()
+        showBrowseCompanion()
 
         analyticsManager?.startUsageTracking()
         startShakeDetector()
@@ -405,7 +406,42 @@ class PcView : ThemedActivity(), AdapterFragmentCallbacks, ShakeDetector.Listene
         requestPcViewExit()
     }
 
+    /**
+     * 手柄快捷键（只在主机列表获得焦点、没有弹窗时生效），全部复用现有入口：
+     * X 添加主机，Y 打开当前选中主机的操作菜单，Start 打开设置，Select 显示/隐藏未配对设备。
+     */
+    private fun handleGamepadShortcut(event: KeyEvent): Boolean {
+        // 「副屏操作」模式下，手柄按键整体转给副屏。
+        if (browseCompanion?.handleKey(event) == true) return true
+        if (event.action != KeyEvent.ACTION_DOWN || event.repeatCount != 0) return false
+        when (event.keyCode) {
+            KeyEvent.KEYCODE_BUTTON_X -> showAddComputerActionSheet()
+            KeyEvent.KEYCODE_BUTTON_Y -> {
+                val list = pcListView ?: return false
+                val position = list.selectedItemPosition
+                if (position == AdapterView.INVALID_POSITION) return false
+                val computer = pcGridAdapter.getItem(position) as? ComputerObject ?: return false
+                if (PcGridAdapter.isAddComputerCard(computer)) return false
+                showHostActionSheet(computer.details)
+            }
+            KeyEvent.KEYCODE_BUTTON_START -> startActivity(Intent(this, StreamSettings::class.java))
+            KeyEvent.KEYCODE_BUTTON_L1 -> if (browseCompanion != null) browseCompanion?.cycleTab(-1) else return false
+            KeyEvent.KEYCODE_BUTTON_R1 -> if (browseCompanion != null) browseCompanion?.cycleTab(1) else return false
+            KeyEvent.KEYCODE_BUTTON_SELECT ->
+                if (browseCompanion != null) browseCompanion?.toggleRemoteFocus() else toggleUnpairedDevices()
+            else -> return false
+        }
+        return true
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (ev.actionMasked == MotionEvent.ACTION_DOWN) CompanionDisplays.inputOnMain = true
+        return super.dispatchTouchEvent(ev)
+    }
+
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN) CompanionDisplays.inputOnMain = true
+        if (handleGamepadShortcut(event)) return true
         if (event.action == KeyEvent.ACTION_DOWN &&
             event.keyCode != KeyEvent.KEYCODE_BUTTON_B &&
             event.keyCode != KeyEvent.KEYCODE_ESCAPE &&
@@ -452,9 +488,15 @@ class PcView : ThemedActivity(), AdapterFragmentCallbacks, ShakeDetector.Listene
     override fun onStop() {
         super.onStop()
         Dialog.closeDialogs()
+        // 副屏浏览页跨 PcView → AppView 保持显示，只有整个应用退到后台（没有任何本应用界面可见）才关闭，
+        // 否则副屏会露出桌面且回不来。
+        if (!isChangingConfigurations && !AppVisibility.anyActivityStarted) {
+            dismissBrowseCompanion()
+        }
     }
 
     override fun onDestroy() {
+        dismissBrowseCompanion()
         AboutDialogLauncher.release(this)
         UpdateManager.cleanup()
         hostUnlockUi.release()
@@ -586,7 +628,7 @@ class PcView : ThemedActivity(), AdapterFragmentCallbacks, ShakeDetector.Listene
 
         clientName = Settings.Global.getString(contentResolver, "device_name")
             ?: Build.MODEL
-            ?: "Moonlight V+ Client"
+            ?: "Moonlight Dual Client"
         backgroundImageView = findViewById(R.id.pcBackgroundImage)
 
         loadBackgroundImage(loadGeneration)
@@ -713,17 +755,6 @@ class PcView : ThemedActivity(), AdapterFragmentCallbacks, ShakeDetector.Listene
             toggleUnpairedDevices()
         }
 
-        addToolbarMenuItem(
-            menu,
-            R.drawable.ic_theme_mode,
-            getString(R.string.pcview_toolbar_theme),
-            getThemeSummary(),
-            accent = true
-        ) {
-            popup.dismiss()
-            showAppThemeSheet(this) { recreate() }
-        }
-
         menu.measure(
             View.MeasureSpec.makeMeasureSpec(popupWidth, View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
@@ -821,13 +852,6 @@ class PcView : ThemedActivity(), AdapterFragmentCallbacks, ShakeDetector.Listene
         })
     }
 
-    private fun getThemeSummary(): String = getString(
-        R.string.theme_summary,
-        getThemeModeLabel(AppTheme.getAppThemeMode(this)),
-        getString(if (AppTheme.getAccentMode(this) == AppTheme.ACCENT_MODE_BG)
-            R.string.theme_accent_background else R.string.theme_accent_pink),
-    )
-
     /**
      * 背景换桶后重染工具栏上以 ?attr/appAccent 着色的图标。
      * 矢量在膨胀时一次性解析主题属性，主题 overlay 更新后不会自动重解析。
@@ -845,14 +869,6 @@ class PcView : ThemedActivity(), AdapterFragmentCallbacks, ShakeDetector.Listene
         findViewById<ImageButton?>(R.id.easyTierControlButton)?.imageTintList = tint
         findViewById<ImageButton?>(R.id.pcToolbarMenuButton)?.imageTintList =
             ColorStateList.valueOf(ContextCompat.getColor(this, R.color.ui_shell_text_primary))
-    }
-
-    private fun getThemeModeLabel(mode: String): String {
-        return when (mode) {
-            AppTheme.THEME_MODE_LIGHT -> getString(R.string.pcview_theme_light)
-            AppTheme.THEME_MODE_DARK -> getString(R.string.pcview_theme_dark)
-            else -> getString(R.string.pcview_theme_follow_system)
-        }
     }
 
     private fun dpToPx(value: Int): Int {
@@ -920,7 +936,7 @@ class PcView : ThemedActivity(), AdapterFragmentCallbacks, ShakeDetector.Listene
         if (target == null) {
             backgroundImageView?.setImageDrawable(
                 when (source) {
-                    BackgroundSource.Auto, BackgroundSource.Api -> PixelMapBackgroundDrawable(this)
+                    BackgroundSource.Auto, BackgroundSource.Api -> androidx.core.content.ContextCompat.getDrawable(this, R.drawable.steam_default_background)
                     else -> null
                 }
             )
@@ -3378,22 +3394,146 @@ class PcView : ThemedActivity(), AdapterFragmentCallbacks, ShakeDetector.Listene
                 return@setOnItemClickListener
             }
 
-            if (computer.details.state == ComputerDetails.State.UNKNOWN
-                    || computer.details.state == ComputerDetails.State.OFFLINE) {
-                showHostActionSheet(computer.details)
-            } else if (computer.details.pairState != PairState.PAIRED) {
-                doPair(computer.details)
-            } else if (computer.details.hasMultipleLanAddresses()) {
-                showAddressSelectionDialog(computer.details)
+            handleHostClick(computer.details)
+        }
+    }
+
+    /** 点击主机卡（或副屏上的主机行）：离线→操作菜单，未配对→配对，否则进入应用列表。 */
+    private fun handleHostClick(details: ComputerDetails) {
+        if (details.state == ComputerDetails.State.UNKNOWN
+                || details.state == ComputerDetails.State.OFFLINE) {
+            showHostActionSheet(details)
+        } else if (details.pairState != PairState.PAIRED) {
+            doPair(details)
+        } else if (details.hasMultipleLanAddresses()) {
+            showAddressSelectionDialog(details)
+        } else {
+            val temp = prepareComputerWithAddress(details)
+            if (temp != null) {
+                doAppList(temp, newlyPaired = false, showHiddenGames = false)
             } else {
-                val temp = prepareComputerWithAddress(computer.details)
-                if (temp != null) {
-                    doAppList(temp, newlyPaired = false, showHiddenGames = false)
-                } else {
-                    showToast(getString(R.string.error_pc_offline))
-                }
+                showToast(getString(R.string.error_pc_offline))
             }
         }
+    }
+
+    private var browseCompanion: BrowseScreenCompanion? = null
+
+    private fun showBrowseCompanion() {
+        if (browseCompanion != null) return
+        val display = CompanionDisplays.find(this)
+        setMainToolbarVisible(display == null)
+        if (display == null) return
+        browseCompanion = BrowseScreenCompanion(
+            activity = this,
+            display = display,
+            hostsProvider = {
+                (0 until pcGridAdapter.count)
+                    .mapNotNull { pcGridAdapter.getItem(it) as? ComputerObject }
+                    .filterNot { PcGridAdapter.isAddComputerCard(it) }
+                    .map { it.details }
+            },
+            onHostClick = ::handleHostClick,
+            onHostLongClick = ::showHostActionSheet,
+            onOpenSettings = { startActivity(Intent(this, StreamSettings::class.java)) },
+            menuItems = {
+                // 与主屏左侧工具栏、「更多」菜单完全相同的入口，只是换到副屏上点。
+                listOf(
+                    BrowseScreenCompanion.MenuItem(
+                        getString(R.string.browse_open_settings), R.drawable.ic_settings,
+                        getString(R.string.menu_sub_settings)
+                    ) { startActivity(Intent(this, StreamSettings::class.java)) },
+                    BrowseScreenCompanion.MenuItem(
+                        getString(R.string.title_about_us), R.drawable.ic_menu_about,
+                        getString(R.string.menu_sub_about)
+                    ) { AboutDialogLauncher.show(this) },
+                    BrowseScreenCompanion.MenuItem(
+                        getString(R.string.easytier_panel_title), R.drawable.ic_network_control,
+                        getString(R.string.menu_sub_easytier)
+                    ) { showEasyTierControlDialog() },
+                    BrowseScreenCompanion.MenuItem(
+                        getString(R.string.pcview_toolbar_restore_session), R.drawable.ic_restore,
+                        getString(R.string.menu_sub_restore)
+                    ) { restoreLastSession() },
+                    BrowseScreenCompanion.MenuItem(
+                        getString(
+                            if (pcGridAdapter.isShowUnpairedDevices()) R.string.pcview_toolbar_toggle_unpaired_hide
+                            else R.string.pcview_toolbar_toggle_unpaired_show
+                        ),
+                        if (pcGridAdapter.isShowUnpairedDevices()) R.drawable.ic_visibility_off else R.drawable.ic_visibility,
+                        getString(R.string.menu_sub_unpaired)
+                    ) { toggleUnpairedDevices() }
+                )
+            }
+        ).also { it.show() }
+    }
+
+    /**
+     * 有副屏时，设置/信息/EasyTier/更多都改在副屏「菜单」页操作，主屏只保留
+     * 选择主机、添加主机和选择应用。没有副屏（手机、单屏）时保持原样，避免入口丢失。
+     */
+    private fun setMainToolbarVisible(visible: Boolean) {
+        val state = if (visible) View.VISIBLE else View.GONE
+        intArrayOf(
+            R.id.settingsButton, R.id.aboutButton, R.id.easyTierControlButton,
+            R.id.pcToolbarMenuButton, R.id.steamRail
+        ).forEach { findViewById<View?>(it)?.visibility = state }
+        // 没有左侧栏时，内容直接靠左，只留一个小边距。
+        val margin = if (visible) 24 else 28
+        val density = resources.displayMetrics.density
+        intArrayOf(R.id.steamHeader, R.id.hostSectionHeader, R.id.pcFragmentContainer).forEach { id ->
+            val v = findViewById<View?>(id) ?: return@forEach
+            val lp = v.layoutParams as? RelativeLayout.LayoutParams ?: return@forEach
+            if (!visible) {
+                lp.removeRule(RelativeLayout.END_OF)
+                lp.removeRule(RelativeLayout.RIGHT_OF)
+                lp.marginStart = (margin * density).toInt()
+                if (id == R.id.pcFragmentContainer) lp.marginStart = (12 * density).toInt()
+            }
+            v.layoutParams = lp
+        }
+        buildControllerHints()
+    }
+
+    /** 右下角的手柄按键提示：画出来的 A/B/X/Y 圆形按键 + 说明，像主机一样。 */
+    private fun buildControllerHints() {
+        val bar = findViewById<LinearLayout?>(R.id.controllerHints) ?: return
+        bar.removeAllViews()
+        val d = resources.displayMetrics.density
+        fun add(badge: String, label: String, color: Int, pill: Boolean = false) {
+            val b = TextView(this).apply {
+                text = badge
+                setTextColor(0xFFFFFFFF.toInt())
+                textSize = if (pill) 11f else 13f
+                typeface = android.graphics.Typeface.DEFAULT_BOLD
+                gravity = android.view.Gravity.CENTER
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    if (pill) cornerRadius = 12 * d else shape = android.graphics.drawable.GradientDrawable.OVAL
+                    setColor(color)
+                    setStroke((1 * d).toInt(), 0xAAFFFFFF.toInt())
+                }
+                val w = if (pill) (44 * d).toInt() else (24 * d).toInt()
+                layoutParams = LinearLayout.LayoutParams(w, (24 * d).toInt())
+            }
+            val t = TextView(this).apply {
+                text = label
+                setTextColor(0xFFC8D6E0.toInt())
+                textSize = 14f
+                setPadding((6 * d).toInt(), 0, (18 * d).toInt(), 0)
+            }
+            bar.addView(b); bar.addView(t)
+        }
+        add("A", getString(R.string.hint_a_connect), 0x33FFFFFF)
+        add("B", getString(R.string.hint_b_exit), 0x33FFFFFF)
+        add("X", getString(R.string.hint_x_add), 0x33FFFFFF)
+        add("Y", getString(R.string.hint_y_more), 0x33FFFFFF)
+        add("START", getString(R.string.hint_start_settings), 0x33FFFFFF, pill = true)
+        (bar.getChildAt(bar.childCount - 1) as TextView).setPadding((6 * d).toInt(), 0, 0, 0)
+    }
+
+    private fun dismissBrowseCompanion() {
+        browseCompanion?.dismiss()
+        browseCompanion = null
     }
 
     private fun setupGridColumnWidth(view: View) {
@@ -3434,10 +3574,12 @@ class PcView : ThemedActivity(), AdapterFragmentCallbacks, ShakeDetector.Listene
 
     private fun calculateDynamicColumnWidth(gridView: GridView) {
         val density = resources.displayMetrics.density
-        val screenWidth = resources.displayMetrics.widthPixels
+        // 左侧工具栏占用的宽度不能算进网格可用宽度，否则会算出放不下的列数而退化成单列。
+        val railPx = resources.getDimensionPixelSize(R.dimen.pc_toolbar_button_size)
+        val screenWidth = resources.displayMetrics.widthPixels - railPx
         val availableWidth = screenWidth - gridView.paddingStart - gridView.paddingEnd
-        val spacingPx = (15f * density).toInt()
-        val minColumnPx = (180f * density).toInt()
+        val spacingPx = (18f * density).toInt()
+        val minColumnPx = (210f * density).toInt()
 
         val numColumns = 1.coerceAtLeast((availableWidth + spacingPx) / (minColumnPx + spacingPx))
         val columnWidth = (availableWidth - (numColumns - 1) * spacingPx) / numColumns

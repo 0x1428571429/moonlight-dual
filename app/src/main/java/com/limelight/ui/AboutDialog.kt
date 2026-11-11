@@ -78,10 +78,10 @@ internal data class EcosystemProject(
     val url: String
 )
 
-internal val aboutDialogShape = RoundedCornerShape(30.dp)
-internal val ecosystemDialogShape = RoundedCornerShape(26.dp)
-private val actionShape = RoundedCornerShape(14.dp)
-private val cardShape = RoundedCornerShape(17.dp)
+internal val aboutDialogShape = RoundedCornerShape(12.dp)
+internal val ecosystemDialogShape = RoundedCornerShape(12.dp)
+private val actionShape = RoundedCornerShape(12.dp)
+private val cardShape = RoundedCornerShape(12.dp)
 
 internal object AboutDialogTags {
     const val HANDBOOK = "about_handbook"
@@ -150,7 +150,7 @@ private fun FocusAwareCloseButton(
 ) {
     var focused by remember { mutableStateOf(false) }
     val showFocus = focusIndicationVisible(focused)
-    val shape = RoundedCornerShape(10.dp)
+    val shape = RoundedCornerShape(12.dp)
     IconButton(
         onClick = onClick,
         modifier = modifier
@@ -300,7 +300,7 @@ private fun BilibiliCard(
                     .border(
                         2.dp,
                         appAccentColor(),
-                        RoundedCornerShape(9.dp)
+                        RoundedCornerShape(12.dp)
                     )
             ) {
                 Text(
@@ -343,7 +343,6 @@ internal fun AboutDialogContent(
     onOpenSource: () -> Unit,
     onBilibili: () -> Unit,
     onGithub: () -> Unit,
-    onQq: () -> Unit,
     onSite: () -> Unit,
     onClose: () -> Unit,
     initialFocusIndex: Int = 0,
@@ -351,7 +350,7 @@ internal fun AboutDialogContent(
     onFocusChanged: (Int) -> Unit = {}
 ) {
     val focusRequesters = remember { List(8) { FocusRequester() } }
-    val targetIndex = initialFocusIndex.takeIf { it in focusRequesters.indices } ?: 6
+    val targetIndex = initialFocusIndex.takeIf { it in setOf(2, 6, 7) } ?: 6
 
     LaunchedEffect(targetIndex, focusRequestGeneration) {
         withFrameNanos { }
@@ -366,7 +365,6 @@ internal fun AboutDialogContent(
                 1 -> AboutDialogTags.ECOSYSTEM
                 2 -> AboutDialogTags.BILIBILI
                 3 -> AboutDialogTags.GITHUB
-                4 -> AboutDialogTags.QQ
                 5 -> AboutDialogTags.SITE
                 7 -> AboutDialogTags.OPEN_SOURCE
                 else -> AboutDialogTags.CLOSE
@@ -383,7 +381,7 @@ internal fun AboutDialogContent(
         android.content.res.Configuration.ORIENTATION_LANDSCAPE
 
     AboutDialogSurface(
-        shape = if (isLandscape) RoundedCornerShape(26.dp) else aboutDialogShape
+        shape = if (isLandscape) RoundedCornerShape(12.dp) else aboutDialogShape
     ) {
         Column {
             Box(modifier = Modifier.weight(1f, fill = false)) {
@@ -397,8 +395,8 @@ internal fun AboutDialogContent(
                         onBilibili = onBilibili,
                         handbookFocus = focusModifier(0, 6, 2, 0, 1),
                         ecosystemFocus = focusModifier(1, 6, 2, 0, 7),
-                        openSourceFocus = focusModifier(7, 6, 2, 1, 7),
-                        bilibiliFocus = focusModifier(2, 7, 3, 2, 2)
+                        openSourceFocus = focusModifier(7, 6, 2, 7, 7),
+                        bilibiliFocus = focusModifier(2, 7, 2, 2, 2)
                     )
                 } else {
                     Column(
@@ -409,7 +407,7 @@ internal fun AboutDialogContent(
                             .padding(start = 28.dp, top = 28.dp, end = 32.dp, bottom = 24.dp)
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.vplus),
+                            painter = painterResource(R.drawable.dual_icon_mark),
                             contentDescription = stringResource(R.string.app_label),
                             tint = Color.Unspecified,
                             modifier = Modifier.size(76.dp)
@@ -449,41 +447,22 @@ internal fun AboutDialogContent(
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(top = 14.dp)
                         )
-                        Text(
-                            stringResource(R.string.about_dialog_thanks),
-                            color = colorResource(R.color.app_dialog_subtitle_color),
-                            style = MaterialTheme.typography.bodySmall,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
 
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier.fillMaxWidth().padding(top = 18.dp, bottom = 12.dp)
                         ) {
                             AccentTextButton(
-                                stringResource(R.string.about_dialog_handbook_action),
-                                onHandbook,
-                                modifier = Modifier.weight(1f),
-                                focusModifier = focusModifier(0, 6, 2, 0, 1)
-                            )
-                            AccentTextButton(
-                                stringResource(R.string.about_dialog_ecosystem_action),
-                                onEcosystem,
-                                modifier = Modifier.weight(1f),
-                                focusModifier = focusModifier(1, 6, 2, 0, 7)
-                            )
-                            AccentTextButton(
                                 stringResource(R.string.about_dialog_open_source_action),
                                 onOpenSource,
                                 modifier = Modifier.weight(1f),
-                                focusModifier = focusModifier(7, 6, 2, 1, 7)
+                                focusModifier = focusModifier(7, 6, 2, 7, 7)
                             )
                         }
 
                         BilibiliCard(
                             onClick = onBilibili,
-                            focusModifier = focusModifier(2, 7, 3, 2, 2)
+                            focusModifier = focusModifier(2, 7, 2, 2, 2)
                         )
                     }
                 }
@@ -494,48 +473,8 @@ internal fun AboutDialogContent(
                         .align(Alignment.TopEnd)
                         .padding(10.dp)
                         .size(36.dp)
-                        .then(focusModifier(6, 6, 1, 6, 6)),
+                        .then(focusModifier(6, 6, 7, 6, 6)),
                     contentDescription = stringResource(R.string.about_dialog_close)
-                )
-            }
-
-            // bottom external links bar
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(colorResource(R.color.app_dialog_outline))
-            )
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(colorResource(R.color.about_dialog_links_bar_surface))
-                    .padding(
-                        start = 14.dp,
-                        end = 14.dp,
-                        top = if (isLandscape) 8.dp else 12.dp,
-                        bottom = if (isLandscape) 8.dp else 12.dp
-                    )
-            ) {
-                AccentTextButton(
-                    stringResource(R.string.about_dialog_github),
-                    onGithub,
-                    modifier = Modifier.weight(1f),
-                    focusModifier = focusModifier(3, 2, 3, 3, 4)
-                )
-                AccentTextButton(
-                    stringResource(R.string.about_dialog_qq),
-                    onQq,
-                    modifier = Modifier.weight(1f),
-                    focusModifier = focusModifier(4, 2, 4, 3, 5)
-                )
-                AccentTextButton(
-                    stringResource(R.string.about_dialog_official_site),
-                    onSite,
-                    modifier = Modifier.weight(1f),
-                    focusModifier = focusModifier(5, 2, 5, 4, 5)
                 )
             }
         }
@@ -568,7 +507,7 @@ private fun LandscapeAboutContent(
             modifier = Modifier.width(230.dp)
         ) {
             Icon(
-                painter = painterResource(R.drawable.vplus),
+                painter = painterResource(R.drawable.dual_icon_mark),
                 contentDescription = stringResource(R.string.app_label),
                 tint = Color.Unspecified,
                 modifier = Modifier.size(76.dp)
@@ -614,30 +553,11 @@ private fun LandscapeAboutContent(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(top = 10.dp)
             )
-            Text(
-                stringResource(R.string.about_dialog_thanks),
-                color = colorResource(R.color.app_dialog_subtitle_color),
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
-            )
 
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 8.dp)
             ) {
-                AccentTextButton(
-                    stringResource(R.string.about_dialog_handbook_action),
-                    onHandbook,
-                    modifier = Modifier.weight(1f),
-                    focusModifier = handbookFocus
-                )
-                AccentTextButton(
-                    stringResource(R.string.about_dialog_ecosystem_action),
-                    onEcosystem,
-                    modifier = Modifier.weight(1f),
-                    focusModifier = ecosystemFocus
-                )
                 AccentTextButton(
                     stringResource(R.string.about_dialog_open_source_action),
                     onOpenSource,
@@ -856,11 +776,11 @@ private fun EcosystemCard(
                         .border(
                             1.dp,
                             colorResource(R.color.about_dialog_panel_outline),
-                            RoundedCornerShape(11.dp)
+                            RoundedCornerShape(12.dp)
                         )
                         .background(
                             appAccentSoftColor(),
-                            RoundedCornerShape(11.dp)
+                            RoundedCornerShape(12.dp)
                         )
                 ) {
                     Text(

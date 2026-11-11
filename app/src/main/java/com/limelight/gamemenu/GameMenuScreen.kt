@@ -88,6 +88,8 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -179,7 +181,8 @@ internal fun GameMenuScreen(
     hardwareFocusRequestToken: Int,
     guideDismissController: GameMenuGuideDismissController,
     useFabricTexture: Boolean = true,
-    restoreFocusRequestToken: Int = 0
+    restoreFocusRequestToken: Int = 0,
+    fullscreen: Boolean = false
 ) {
     val palette = gameMenuPalette()
     val appContext = LocalContext.current.applicationContext
@@ -276,13 +279,14 @@ internal fun GameMenuScreen(
             GameMenuDialogShell(
                 maxMenuWidth = maxMenuWidth,
                 onDismissRequest = callbacks.onDismiss,
-                onTouchInteraction = callbacks.onTouchInteraction
+                onTouchInteraction = callbacks.onTouchInteraction,
+                fullscreen = fullscreen
             ) { wideLayout ->
                 Surface(
                     color = Color.Transparent,
-                    shape = GameMenuDialogShape,
-                    border = BorderStroke(GameMenuDimens.surfaceStroke, palette.dialogBorder),
-                    modifier = Modifier
+                    shape = if (fullscreen) androidx.compose.ui.graphics.RectangleShape else GameMenuDialogShape,
+                    border = if (fullscreen) null else BorderStroke(GameMenuDimens.surfaceStroke, palette.dialogBorder),
+                    modifier = if (fullscreen) Modifier.fillMaxSize() else Modifier
                         .fillMaxWidth()
                         .heightIn(max = maxMenuHeight)
                 ) {
@@ -435,6 +439,7 @@ internal fun GameMenuDialogShell(
     onDismissRequest: () -> Unit,
     onTouchInteraction: () -> Unit = {},
     maxMenuWidth: Dp = AppOverlayWidths.expanded,
+    fullscreen: Boolean = false,
     content: @Composable (wideLayout: Boolean) -> Unit
 ) {
     val widthFraction = if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -459,7 +464,7 @@ internal fun GameMenuDialogShell(
             GameMenuDimens.compactScreenInset
         }
         // Keep the existing small-screen margins, then cap the visible panel itself.
-        val panelWidth = (maxWidth * widthFraction - (safeHorizontalPadding + horizontalInset) * 2)
+        val panelWidth = if (fullscreen) maxWidth else (maxWidth * widthFraction - (safeHorizontalPadding + horizontalInset) * 2)
             .coerceIn(0.dp, maxMenuWidth)
         val contentWidth = (panelWidth - GameMenuDimens.outer * 2).coerceAtLeast(0.dp)
         val wideLayout = contentWidth >= GAME_MENU_WIDE_LAYOUT_MIN_WIDTH_DP.dp
@@ -476,13 +481,23 @@ internal fun GameMenuDialogShell(
                     semanticsTestTag = GAME_MENU_BACKDROP_TAG
                 }
         )
+        // 弹出动画：淡入 + 从下方轻轻滑入，不再是硬切。
+        val enterState = remember { androidx.compose.animation.core.MutableTransitionState(false).apply { targetState = true } }
+        androidx.compose.animation.AnimatedVisibility(
+            visibleState = enterState,
+            enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(220)) +
+                androidx.compose.animation.slideInVertically(
+                    androidx.compose.animation.core.tween(280, easing = androidx.compose.animation.core.FastOutSlowInEasing)
+                ) { it / 10 },
+            exit = androidx.compose.animation.ExitTransition.None
+        ) {
         Box(
-            modifier = Modifier
+            modifier = (if (fullscreen) Modifier.fillMaxSize() else Modifier
                 .width(panelWidth)
                 .padding(
                     top = safeDrawingPadding.calculateTopPadding(),
                     bottom = safeDrawingPadding.calculateBottomPadding()
-                )
+                ))
                 .testTag(GAME_MENU_PANEL_TAG)
                 .pointerInput(Unit) {
                     awaitEachGesture {
@@ -493,6 +508,7 @@ internal fun GameMenuDialogShell(
                 }
         ) {
             content(wideLayout)
+        }
         }
     }
 }
@@ -530,7 +546,7 @@ private fun gameMenuPalette() = GameMenuPalette(
     textSecondary = colorResource(R.color.game_menu_text_secondary),
     dialogBackground = colorResource(R.color.game_menu_dialog_background),
     dialogBorder = colorResource(R.color.game_menu_dialog_border),
-    darkTheme = isSystemInDarkTheme()
+    darkTheme = true // 游戏菜单固定使用 Steam 深蓝风格
 )
 
 @Composable
@@ -558,7 +574,14 @@ internal fun GameMenuTheme(content: @Composable () -> Unit) {
             onSurfaceVariant = palette.textSecondary,
             outline = palette.dialogBorder
         ),
-        content = content
+        content = {
+            // 菜单文字原本 9–13sp，在 3.9 寸副屏上偏小，整体放大 1.3 倍。
+            val density = LocalDensity.current
+            CompositionLocalProvider(
+                LocalDensity provides Density(density.density, density.fontScale * 1.3f),
+                content = content
+            )
+        }
     )
 }
 
@@ -1209,11 +1232,11 @@ private fun GameMenuHeader(
                             Modifier
                         }
                     )
-                    .size(36.dp)
+                    .size(48.dp)
                     .clip(CircleShape)
                     .gamepadFocusOutline(CircleShape)
                     .clickable(onClick = callbacks.onBack)
-                    .padding(8.dp)
+                    .padding(10.dp)
             )
             Spacer(Modifier.width(GameMenuDimens.tight))
         }
@@ -1305,9 +1328,9 @@ private fun GameMenuHeader(
             }
             val crownShape = CircleShape
             Icon(
-                painter = painterResource(R.drawable.ic_super_crown),
+                painter = painterResource(R.drawable.phc_crown),
                 contentDescription = state.crownToggleText,
-                tint = Color.Unspecified,
+                tint = colorResource(R.color.game_menu_icon_tint),
                 modifier = Modifier
                     .then(crownGuideModifier)
                     .size(36.dp)
@@ -1366,7 +1389,7 @@ private fun HeaderDeviceQuickAction(
             Icon(
                 painter = painterResource(iconRes),
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = colorResource(R.color.game_menu_icon_tint),
                 modifier = Modifier.size(20.dp)
             )
         } else {

@@ -1,32 +1,44 @@
 <div align="center">
-  <img src="./app/src/main/res/drawable/vplus.webp" width="100" alt="Moonlight V+ Logo">
+  <img src="./docs/assets/logo.png" width="120" alt="Moonlight Dual">
 
-  # Moonlight V+
+  # Moonlight Dual
 
-  [![GitHub Release](https://img.shields.io/github/v/release/qiin2333/moonlight-vplus?label=latest&style=flat-square)](https://github.com/qiin2333/moonlight-vplus/releases/latest)
   [![Android](https://img.shields.io/badge/Android-5.0+-34A853?style=flat-square&logo=android&logoColor=white)](https://developer.android.com/about/versions)
   [![License](https://img.shields.io/badge/license-GPL%20v3-EF9421?style=flat-square)](LICENSE.txt)
-  [![GitHub Stars](https://img.shields.io/github/stars/qiin2333/moonlight-vplus?style=flat-square)](https://github.com/qiin2333/moonlight-vplus/stargazers)
-  [![Downloads](https://img.shields.io/github/downloads/qiin2333/moonlight-vplus/total?style=flat-square&color=blue)](https://github.com/qiin2333/moonlight-vplus/releases)
 
-  **基于 [Moonlight](https://github.com/moonlight-stream/moonlight-android) 的增强版 Android 游戏串流客户端**
+  **专为 Sunshine 打造的串流客户端，面向双屏掌机。**
 
   [English](README_EN.md) | 中文
-
-  <a href="./assets/readme/moonlight-vplus-promo.mp4">
-    <img src="./assets/readme/moonlight-vplus-promo.gif" width="800" alt="Moonlight V+：启动应用、浏览游戏库与游戏画面预览">
-  </a>
-  <br/>
-  <sub>启动 → 游戏库 → 连接 → 游戏画面预览 · 点击观看清晰版视频</sub>
-  <br/>
-  <sub>界面为真机录屏，游戏画面由《无人深空》官方预告片合成。<a href="./assets/readme/README.md">素材说明</a></sub>
 </div>
 
 ---
 
+> **关于本项目**：Moonlight Dual 是基于 [qiin2333/moonlight-vplus](https://github.com/qiin2333/moonlight-vplus)（Moonlight V+）修改而来，后者又源自 [moonlight-android](https://github.com/moonlight-stream/moonlight-android)。感谢两个上游项目及其贡献者；本项目沿用 GPL v3 许可证。
+
+**Moonlight Dual** 是为双屏掌机（如 AYN Thor）而生的 Sunshine 串流客户端：**主屏专心看画面，副屏当控制台**。
+
+它是一个 Android 应用：把电脑（Sunshine / Foundation Sunshine 主机）上的游戏和桌面串流到手机、掌机或平板上，支持手柄、触控与键鼠。针对双屏设备重新设计了界面——大屏负责选择与画面，小屏负责监控、调参和快捷操作，串流时不用打断主屏画面就能操作。
+
+- **主屏**：Steam 大屏风格的主机与应用选择，手柄全程可操作（A 连接 / B 退出 / X 添加主机 / Y 更多 / START 设置）。
+- **副屏**：串流时显示实时监控（帧率曲线、帧时间、1% Low、RTT、丢包、延迟链路）、码率调节、输入开关、快捷键（Esc / Win / Alt+Tab / 键盘 / HDR / 麦克风 / 虚拟手柄 / 断开）；浏览时显示主机状态（在线、串流中、继续、上次连接）、应用面板与菜单。
+- **游戏菜单**：在副屏以全屏二级页打开，快捷按钮自动换行，不挡主屏画面。
+- **弹窗跟随**：对话框出现在你最后操作的那块屏幕上。
+
+## 界面
+
+<p align="center"><img src="docs/screenshots/dual-hosts.png" width="520" alt="浏览：主屏选主机，副屏显示主机状态"><br/><sub>浏览：主屏选主机，副屏显示主机状态</sub></p>
+
+<p align="center"><img src="docs/screenshots/dual-apps.png" width="520" alt="选应用：主屏选应用，副屏显示应用与串流参数"><br/><sub>选应用：主屏选应用，副屏显示应用与串流参数</sub></p>
+
+<p align="center"><img src="docs/screenshots/dual-menu.png" width="520" alt="副屏菜单：设置、关于、EasyTier、恢复会话等"><br/><sub>副屏菜单：设置、关于、EasyTier、恢复会话等</sub></p>
+
+<p align="center"><img src="docs/screenshots/dual-stream-settings.png" width="520" alt="串流设置：副屏快速调整串流参数"><br/><sub>串流设置：副屏快速调整串流参数</sub></p>
+
+<p align="center"><img src="docs/screenshots/dual-streaming-second-screen.png" width="900" alt="串流中的副屏：监控 / 码率 / 输入 / 快捷"><br/><sub>串流中的副屏：监控 / 码率 / 输入 / 快捷</sub></p>
+
 ## 与上游 Moonlight 的区别
 
-Moonlight V+ 在 [moonlight-android](https://github.com/moonlight-stream/moonlight-android) 的基础上增加了大量实用功能，同时保持与原版串流协议的完全兼容。
+Moonlight Dual 在 [moonlight-android](https://github.com/moonlight-stream/moonlight-android) 的基础上增加了大量实用功能，同时保持与原版串流协议的完全兼容。
 
 | 类别 | 功能 | 说明 | 起始版本 |
 |------|------|------|:--------:|
@@ -54,7 +66,7 @@ Moonlight V+ 在 [moonlight-android](https://github.com/moonlight-stream/moonlig
 | | 音频震动 | 实时低频能量驱动触觉反馈（设备 / 手柄 / 双路） | `12.7.0` |
 | | | 三种场景模式：游戏（持续低频）、音乐（节拍脉冲）、自动识别 | |
 
-想按使用场景上手？请看 [Moonlight V+ 特色功能指引](docs/VPLUS_FEATURES.md)，从王冠配置、Foundation Sunshine 联动、显示器、触觉与插帧中选择适合自己的入口。
+想按使用场景上手？请看 [Moonlight Dual 特色功能指引](docs/VPLUS_FEATURES.md)，从王冠配置、Foundation Sunshine 联动、显示器、触觉与插帧中选择适合自己的入口。
 
 ## 快速开始
 
@@ -67,14 +79,14 @@ Moonlight V+ 在 [moonlight-android](https://github.com/moonlight-stream/moonlig
 
 ### 安装
 
-从 [Releases](https://github.com/qiin2333/moonlight-vplus/releases/latest) 下载最新 APK，安装后按应用内引导完成配对即可。
+从 [Releases](https://github.com/0x1428571429/moonlight-dual/releases/latest) 下载最新 APK，安装后按应用内引导完成配对即可。
 
 首次串流建议从 1080p、60 FPS、H.264 或自动编码、关闭 HDR、10–20 Mbps 开始，主机尽量使用有线网络。确认稳定后，再逐项提高分辨率、帧率、码率并启用 HEVC / AV1、HDR 等功能。
 
 ### 选择主机端
 
-- **Foundation Sunshine（首推）**：与 Moonlight V+ 配套，提供标准串流及其支持的 V+ 扩展功能，例如麦克风重定向和主机显示控制；具体功能取决于主机端版本。
-- **Sunshine**：可用于标准 Moonlight 串流；部分 V+ 扩展功能需要 Foundation Sunshine。
+- **Foundation Sunshine（首推）**：与 Moonlight Dual 配套，提供标准串流及其支持的 扩展功能，例如麦克风重定向和主机显示控制；具体功能取决于主机端版本。
+- **Sunshine**：可用于标准 Moonlight 串流；部分 扩展功能需要 Foundation Sunshine。
 - **NVIDIA GameStream**：供仍在使用旧主机的用户尝试兼容；新安装建议选择 Foundation Sunshine。
 
 ### 遇到问题
@@ -93,8 +105,8 @@ Moonlight V+ 在 [moonlight-android](https://github.com/moonlight-stream/moonlig
 先安装 JDK 17、Android SDK 36、Build Tools 36.0.0、NDK 28.2.13676358 和 CMake 3.22.1。项目还需要两个 Git 子模块及单独的 [audio-haptics SDK](https://github.com/AlkaidLab/moonlight-audio-haptics)；其版本以 [CI 配置](.github/workflows/android-ci.yml) 为准。
 
 ```bash
-git clone --recurse-submodules https://github.com/qiin2333/moonlight-vplus.git
-cd moonlight-vplus
+git clone --recurse-submodules https://github.com/0x1428571429/moonlight-dual.git
+cd moonlight-dual
 git clone https://github.com/AlkaidLab/moonlight-audio-haptics.git ../moonlight-audio-haptics
 git -C ../moonlight-audio-haptics checkout b3f97c3bb7500ea7b1985aea568e5c7b40308d3b
 ./gradlew :app:assembleNonRootDebug -PaudioHapticsSdkDir="$PWD/../moonlight-audio-haptics"
@@ -134,7 +146,8 @@ Windows PowerShell 请将最后一行改为 `.\gradlew.bat :app:assembleNonRootD
 
 ## 致谢
 
-- [Moonlight Android](https://github.com/moonlight-stream/moonlight-android) — 上游项目
+- [Moonlight V+](https://github.com/qiin2333/moonlight-vplus) — 直接的上游项目，本项目基于它修改
+- [Moonlight Android](https://github.com/moonlight-stream/moonlight-android) — 最初的上游项目
 - [Sunshine](https://github.com/LizardByte/Sunshine) — 开源串流主机端
 
 ## 许可证

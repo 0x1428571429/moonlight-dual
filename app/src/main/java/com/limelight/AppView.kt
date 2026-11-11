@@ -466,7 +466,7 @@ class AppView : ThemedComponentActivity(), AdapterFragmentCallbacks {
             this,
             appBackgroundImageBlur!!,
             appBackgroundImageClear,
-            artworkBlurOnly = isPortrait,
+            artworkBlurOnly = true, // Steam 风格：只保留模糊底图，不再叠中间的清晰大图
             onBackgroundApplied = { refreshTitleColor() }
         )
 
@@ -756,8 +756,10 @@ class AppView : ThemedComponentActivity(), AdapterFragmentCallbacks {
             listOfNotNull(appBackgroundImageBlur, appBackgroundImageClear),
             ContextCompat.getColor(this, R.color.advance_setting_background)
         )
-        label.setTextColor(color)
-        ViewCompat.setBackgroundTintList(label, ColorStateList.valueOf(color))
+        // Steam 深色底：标题固定用浅色，不再按背景亮度取色
+        val steamTitle = 0xFFE6F1FA.toInt()
+        label.setTextColor(steamTitle)
+        ViewCompat.setBackgroundTintList(label, ColorStateList.valueOf(steamTitle))
     }
 
     private fun applyHeaderSafeArea(insets: WindowInsetsCompat?) {
@@ -802,7 +804,7 @@ class AppView : ThemedComponentActivity(), AdapterFragmentCallbacks {
         label.minimumHeight = resources.getDimensionPixelSize(R.dimen.appview_title_min_height)
         label.maxLines = resources.getInteger(R.integer.appview_title_max_lines)
         // The view stays anchored to the end; start-align ellipsized lines to keep the icon intact.
-        label.gravity = if (label.maxLines == 1) android.view.Gravity.START else android.view.Gravity.END
+        label.gravity = android.view.Gravity.START
         appViewTargetReminder.maxLines = resources.getInteger(R.integer.appview_target_reminder_max_lines)
     }
 
@@ -985,6 +987,28 @@ class AppView : ThemedComponentActivity(), AdapterFragmentCallbacks {
         }
 
         updateLastSettingsInfo(app)
+        pushAppContextToCompanion(app, position)
+    }
+
+    /** 把选中的应用推给副屏：副屏显示详情和「开始串流」，选择与详情分处两屏。 */
+    private fun pushAppContextToCompanion(app: AppObject, position: Int) {
+        val companion = BrowseScreenCompanion.current ?: return
+        val running = lastRunningAppId != 0 && app.app.appId == lastRunningAppId
+        companion.setAppContext(
+            BrowseScreenCompanion.AppContext(
+                hostName = computerName,
+                appName = app.app.appName,
+                running = running,
+                summary = lastSettingsSummary?.let { sm ->
+                    (listOf("上次 · ${sm.timeLabel}").filter { sm.timeLabel.isNotBlank() } +
+                        sm.rows.take(4).map { "${it.first}：${it.second}" }).joinToString("\n")
+                }.orEmpty(),
+                onPrimary = {
+                    if (lastRunningAppId != 0) showAppActionSheetForPosition(position)
+                    else startStreamWithLastSettingsIfEnabled(app)
+                }
+            )
+        )
     }
 
     /**
@@ -1507,6 +1531,7 @@ class AppView : ThemedComponentActivity(), AdapterFragmentCallbacks {
     }
 
     override fun onDestroy() {
+        BrowseScreenCompanion.current?.setAppContext(null)
         if (::topPanelHandleController.isInitialized) {
             topPanelHandleController.release()
         }
@@ -1547,6 +1572,9 @@ class AppView : ThemedComponentActivity(), AdapterFragmentCallbacks {
 
     override fun onResume() {
         super.onResume()
+        appGridAdapter?.takeIf { selectedPosition in 0 until it.count }?.let { ad ->
+            (ad.getItem(selectedPosition) as? AppObject)?.let { pushAppContextToCompanion(it, selectedPosition) }
+        }
 
         // Display a decoder crash notification if we've returned after a crash
         UiHelper.showDecoderCrashDialog(this)
@@ -2283,6 +2311,7 @@ class AppView : ThemedComponentActivity(), AdapterFragmentCallbacks {
     // ==================== 顶部面板 - 事件处理 ====================
 
     override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
+        if (ev.actionMasked == android.view.MotionEvent.ACTION_DOWN) CompanionDisplays.inputOnMain = true
         // 面板打开时点击外部自动关闭
         if (isPanelOpen && ev.action == android.view.MotionEvent.ACTION_DOWN) {
             val x = ev.rawX
@@ -2294,6 +2323,11 @@ class AppView : ThemedComponentActivity(), AdapterFragmentCallbacks {
             }
         }
         return super.dispatchTouchEvent(ev)
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN) CompanionDisplays.inputOnMain = true
+        return super.dispatchKeyEvent(event)
     }
 
     override fun onKeyDown(keyCode: Int, event: android.view.KeyEvent): Boolean {

@@ -1378,12 +1378,16 @@ class GameMenu(
                         useFabricTexture = renderingProfile.useFabricTexture,
                         hardwareFocusRequestToken = hardwareFocusRequest.intValue,
                         restoreFocusRequestToken = parentFocusRestoreRequest.intValue,
-                        guideDismissController = guideDismissController
+                        guideDismissController = guideDismissController,
+                        fullscreen = game.companionMenuDisplay() != null
                     )
                 }
             }
         }
-        dialog = object : ComponentDialog(game, R.style.GameMenuDialogStyle) {
+        // 有伴生副屏时，菜单作为 Presentation 层窗口弹在副屏上，主屏继续显示游戏画面。
+        val menuDisplay = game.companionMenuDisplay()
+        val menuContext = menuDisplay?.let { game.createDisplayContext(it) } ?: game
+        dialog = object : ComponentDialog(menuContext, R.style.GameMenuDialogStyle) {
             override fun onWindowFocusChanged(hasFocus: Boolean) {
                 super.onWindowFocusChanged(hasFocus)
                 if (!hasFocus && usesMicrophoneInput()) prepareForInputOwnerChange()
@@ -1401,6 +1405,9 @@ class GameMenu(
         }.apply {
             setContentView(composeView)
             setCanceledOnTouchOutside(true)
+            if (menuDisplay != null) {
+                window?.setType(2037 /* TYPE_PRESENTATION，SDK 里未公开 */)
+            }
         }
         this.activeDialog = dialog
         this.activeComposeView = composeView
@@ -1550,7 +1557,7 @@ class GameMenu(
                 app.appName
             }
         } catch (_: Exception) {
-            "Moonlight V+"
+            "Moonlight Dual"
         }
     }
 
@@ -2121,8 +2128,16 @@ class GameMenu(
             }
             window.attributes = layoutParams
             window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+            // 弹在副屏上时用不透明深色底，避免透出下面的伴生面板。
+            val onCompanion = layoutParams.type == 2037
+            if (onCompanion) {
+                layoutParams.alpha = 1f
+                window.attributes = layoutParams
+            }
             window.setBackgroundDrawable(
-                android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+                android.graphics.drawable.ColorDrawable(
+                    if (onCompanion) 0xFF070C12.toInt() else android.graphics.Color.TRANSPARENT
+                )
             )
             window.setWindowAnimations(renderingProfile.dialogAnimationStyle)
         }
@@ -2618,7 +2633,7 @@ class GameMenu(
             "mouse_mode" to R.drawable.ic_candy_mouse,
             "game_menu_mouse_emulation" to R.drawable.ic_mouse_emulation_cute,
             "game_menu_pan_zoom" to R.drawable.ic_pan_zoom_cute,
-            "crown_function_menu" to R.drawable.ic_super_crown,
+            "crown_function_menu" to R.drawable.phc_crown,
             "crown_visibility" to R.drawable.ic_ui_settings,
             "crown_touch" to R.drawable.ic_touch_settings,
             "crown_profiles" to R.drawable.ic_change,

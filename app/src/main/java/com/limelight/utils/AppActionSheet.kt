@@ -82,6 +82,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.limelight.CompanionDisplays
 import com.limelight.R
 import com.limelight.ui.ExpressiveMotion
 import com.limelight.ui.UiDismissKeyHandler
@@ -97,11 +98,11 @@ object AppActionSheet {
     private fun windowWidth(context: Context): Int {
         val resources = context.resources
         val metrics = resources.displayMetrics
-        val maxWidth = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            (AppOverlayWidths.compact + horizontalInset * 2).value,
-            metrics
-        ).roundToInt()
+        // 副屏比主屏窄，菜单撑满会显得过宽：在副屏上收窄到 440dp。
+        val onSecondary = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+            (context.display?.displayId ?: android.view.Display.DEFAULT_DISPLAY) != android.view.Display.DEFAULT_DISPLAY
+        val capDp = if (onSecondary) 440f else (AppOverlayWidths.compact + horizontalInset * 2).value
+        val maxWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, capDp, metrics).roundToInt()
         val availableWidth = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             windowManager.currentWindowMetrics.bounds.width()
@@ -130,7 +131,7 @@ object AppActionSheet {
      * the standard action sheets. Custom content should be built from the shared
      * action-sheet composables below so controller focus remains consistent. */
     fun showCustom(context: Context, content: @Composable () -> Unit): Dialog {
-        val dialog = ComponentDialog(context, R.style.AppActionSheetStyle)
+        val dialog = ComponentDialog(CompanionDisplays.redirect(context), R.style.AppActionSheetStyle)
         val composeView = ComposeView(context).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
             setContent {
@@ -177,7 +178,7 @@ object AppActionSheet {
         onAction: (Action) -> Unit,
         onDismiss: ((Action?) -> Unit)? = null
     ): Dialog {
-        val dialog = ComponentDialog(context, R.style.AppActionSheetStyle)
+        val dialog = ComponentDialog(CompanionDisplays.redirect(context), R.style.AppActionSheetStyle)
         var selectedAction: Action? = null
         val focusRequestToken = mutableIntStateOf(0)
         val composeView = ComposeView(context).apply {
@@ -247,7 +248,7 @@ object AppActionSheet {
         onDismiss: (() -> Unit)? = null,
         onSelectionChanged: ((Set<Int>) -> Unit)? = null
     ): Dialog {
-        val dialog = ComponentDialog(context, R.style.AppActionSheetStyle)
+        val dialog = ComponentDialog(CompanionDisplays.redirect(context), R.style.AppActionSheetStyle)
         var completed = false
         val focusRequestToken = mutableIntStateOf(0)
         val composeView = ComposeView(context).apply {
@@ -327,7 +328,7 @@ object AppActionSheet {
             override fun onConfigurationChanged(newConfig: Configuration) {
                 super.onConfigurationChanged(newConfig)
                 dialog.window?.let { window ->
-                    window.attributes = window.attributes.apply { width = windowWidth(context) }
+                    window.attributes = window.attributes.apply { width = windowWidth(dialog.context) }
                 }
             }
         }.apply {
@@ -357,13 +358,14 @@ object AppActionSheet {
             window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             window.attributes = window.attributes.apply {
                 width = if (fullScreen) ViewGroup.LayoutParams.MATCH_PARENT
-                else windowWidth(contentView.context)
+                else windowWidth(dialog.context)
                 height = if (fullScreen) ViewGroup.LayoutParams.MATCH_PARENT
                 else ViewGroup.LayoutParams.WRAP_CONTENT
                 gravity = if (fullScreen) Gravity.FILL else Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
             }
         }
 
+        CompanionDisplays.place(dialog)
         dialog.show()
         dialog.window?.let { window ->
             window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
@@ -401,7 +403,7 @@ object AppActionSheet {
         val surface = colorResource(R.color.app_dialog_surface)
         val primary = colorResource(R.color.app_dialog_text_primary)
         val secondary = colorResource(R.color.app_dialog_text_secondary)
-        val scheme = if (isSystemInDarkTheme()) {
+        val scheme = if (true) {
             darkColorScheme(
                 primary = accent,
                 surface = surface,

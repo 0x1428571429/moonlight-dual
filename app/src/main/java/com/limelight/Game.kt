@@ -87,6 +87,7 @@ import com.limelight.services.KeyboardAccessibilityService
 import android.annotation.SuppressLint
 import android.app.PictureInPictureParams
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
@@ -372,6 +373,11 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
 
     var usbDriverServiceManager: UsbDriverServiceManager? = null
     var externalDisplayManager: ExternalDisplayManager? = null
+    private var secondScreenCompanion: SecondScreenCompanion? = null
+
+    /** 伴生副屏正在显示时，返回它所在的屏幕；游戏菜单据此改在副屏上弹出。 */
+    fun companionMenuDisplay(): android.view.Display? =
+        if (secondScreenCompanion != null) CompanionDisplays.find(this) else null
     private lateinit var targetDisplayResolver: TargetDisplayResolver
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -910,6 +916,27 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         } else {
             callback.onExternalDisplayDisconnected()
         }
+        updateSecondScreenCompanion(manager.isUsingExternalDisplay())
+    }
+
+    /**
+     * 掌机的第二块屏比主屏小：串流留在主屏，副屏显示监控/控制面板。
+     * 外接大屏（电视/显示器）仍沿用原有的“串流到外屏”行为，不弹面板。
+     */
+    private fun updateSecondScreenCompanion(streamOnExternalDisplay: Boolean) {
+        if (streamOnExternalDisplay) {
+            secondScreenCompanion?.dismiss()
+            secondScreenCompanion = null
+            return
+        }
+
+        if (secondScreenCompanion != null) return
+
+        val companionDisplay = CompanionDisplays.find(this) ?: return
+
+        val companion = SecondScreenCompanion(this, companionDisplay, performanceOverlayManager)
+        secondScreenCompanion = companion
+        companion.show()
     }
 
     /** Bind or re-bind the USB driver service with the current controllerHandler. */
@@ -1928,6 +1955,8 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
             inputCaptureProvider.destroy()
         }
         externalDisplayManager?.cleanup()
+        secondScreenCompanion?.dismiss()
+        secondScreenCompanion = null
         microphoneManager?.stopMicrophoneStream()
         clipboardSyncManager?.stop()
         clipboardSyncManager = null

@@ -217,7 +217,7 @@ class EasyTierController(
             }
         }
 
-        val dialog = ComponentDialog(activity, R.style.AppDialogStyle).apply {
+        val dialog = ComponentDialog(com.limelight.CompanionDisplays.redirect(activity), R.style.AppDialogStyle).apply {
             setContentView(composeView)
             // Keep this floating window's viewport stable while Compose scrolls the focused field.
             window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
@@ -231,6 +231,7 @@ class EasyTierController(
             }
         }
         currentDialog = dialog
+        com.limelight.CompanionDisplays.place(dialog)
         dialog.show()
         AppDialogStyler.applyCustomContent(dialog, activity)
     }
@@ -765,7 +766,7 @@ class EasyTierController(
     private fun getEasyTierConfig(): String {
         val prefs = activity.getSharedPreferences(EASYTIER_PREFS, Context.MODE_PRIVATE)
         val defaultConfig = "instance_name = \"Default\"\n" +
-                "hostname = \"moonlight-V+\"\n" +
+                "hostname = \"moonlight-dual\"\n" +
                 "ipv4 = \"10.0.0.1/24\"\n" +
                 "dhcp = false\n" +
                 "listeners = [\"tcp://0.0.0.0:11010\", \"udp://0.0.0.0:11010\", \"wg://0.0.0.0:11011\"]\n" +

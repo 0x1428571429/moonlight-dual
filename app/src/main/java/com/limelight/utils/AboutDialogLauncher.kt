@@ -44,19 +44,18 @@ object AboutDialogLauncher {
 
     private const val OFFICIAL_SITE_CN_URL = "https://www.alkaidlab.cn/"
     private const val OFFICIAL_SITE_GLOBAL_URL = "https://www.alkaidlab.com/"
-    private const val GITHUB_URL = "https://github.com/qiin2333/moonlight-vplus"
+    private const val GITHUB_URL = "https://github.com/0x1428571429/moonlight-dual"
     private const val BILIBILI_URL = "https://space.bilibili.com/3690974838524514"
     private const val FOUNDATION_SUNSHINE_URL =
         "https://github.com/AlkaidLab/foundation-sunshine"
     private const val MOONLIGHT_PC_URL = "https://github.com/qiin2333/moonlight-qt"
-    private const val MOONLIGHT_VPLUS_URL = "https://github.com/qiin2333/moonlight-vplus"
+    private const val MOONLIGHT_VPLUS_URL = "https://github.com/0x1428571429/moonlight-dual"
     private const val VOIDLINK_URL =
         "https://apps.apple.com/us/app/voidlink-extreme/id6755103808"
     private const val HARMONY_URL =
         "https://appgallery.huawei.com/app/detail?id=com.alkaidlab.sdream"
     private const val MOONLIGHT_MAC_URL =
         "https://github.com/skyhua0224/moonlight-macos-enhanced"
-    private const val QQ_GROUP_KEY = "LlbLDIF_YolaM4HZyLx0xAXXo04ZmoBM"
 
     private data class ActiveDialogs(
         val owner: WeakReference<Context>,
@@ -100,9 +99,8 @@ object AboutDialogLauncher {
                     d.dismiss()
                     OpenSourceNoticesActivity.open(context)
                 },
-                onBilibili = { if (BrowserOnlyLauncher.open(context, BILIBILI_URL)) d.dismiss() },
+                onBilibili = { if (BrowserOnlyLauncher.open(context, GITHUB_URL)) d.dismiss() },
                 onGithub = { if (BrowserOnlyLauncher.open(context, GITHUB_URL)) d.dismiss() },
-                onQq = { if (openQqGroup(context)) d.dismiss() },
                 onSite = {
                     if (BrowserOnlyLauncher.open(context, officialSiteUrl(currentLocale(context)))) {
                         d.dismiss()
@@ -219,7 +217,7 @@ object AboutDialogLauncher {
         onReadyForFocus: () -> Unit,
         content: @Composable (Dialog) -> Unit
     ): Dialog {
-        val dialog = ComponentDialog(context, R.style.AppComposeDialogStyle)
+        val dialog = ComponentDialog(com.limelight.CompanionDisplays.redirect(context), R.style.AppComposeDialogStyle)
         val composeView = ComposeView(context).apply {
             isFocusable = true
             isFocusableInTouchMode = true
@@ -244,15 +242,18 @@ object AboutDialogLauncher {
                 }
             }
         }
+        com.limelight.CompanionDisplays.place(dialog)
         return dialog
     }
 
     private fun applyDialogWidth(
         dialog: Dialog,
-        context: Context,
+        hostContext: Context,
         portraitMaxDp: Int,
         landscapeMaxDp: Int
     ) {
+        // 弹在副屏时按副屏的尺寸算宽度，而不是主屏。
+        val context = dialog.context
         val isLandscape = context.resources.configuration.orientation ==
             Configuration.ORIENTATION_LANDSCAPE
         val maxWidth = dpToPx(context, if (isLandscape) landscapeMaxDp else portraitMaxDp)
@@ -302,25 +303,10 @@ object AboutDialogLauncher {
             info.applicationInfo
                 ?.loadLabel(context.packageManager)
                 ?.toString()
-                ?: "Moonlight V+"
+                ?: "Moonlight Dual"
         } catch (_: PackageManager.NameNotFoundException) {
-            "Moonlight V+"
+            "Moonlight Dual"
         }
-    }
-
-    private fun openQqGroup(context: Context): Boolean {
-        val url = Uri.Builder()
-            .scheme("https")
-            .authority("qm.qq.com")
-            .appendPath("cgi-bin")
-            .appendPath("qm")
-            .appendPath("qr")
-            .appendQueryParameter("from", "app")
-            .appendQueryParameter("p", "android")
-            .appendQueryParameter("jump_from", "webapi")
-            .appendQueryParameter("k", QQ_GROUP_KEY)
-            .build()
-        return BrowserOnlyLauncher.open(context, url.toString())
     }
 
     private fun ecosystemProjects(context: Context): List<EcosystemProject> {
