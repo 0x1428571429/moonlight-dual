@@ -7,7 +7,7 @@
     android:id="@+id/browseRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FF070C12"
+    android:background="@color/panel_background"
     android:orientation="vertical"
     android:padding="14dp">
 
@@ -21,7 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Moonlight Dual"
-            android:textColor="#FFFFFFFF"
+            android:textColor="@color/panel_text_strong"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -82,7 +82,7 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textColor="#8FA6B6"
+                    android:textColor="@color/panel_text_muted"
                     android:textSize="13sp" />
 
                 <TextView
@@ -92,7 +92,7 @@
                     android:layout_marginTop="4dp"
                     android:ellipsize="end"
                     android:maxLines="2"
-                    android:textColor="#FFFFFFFF"
+                    android:textColor="@color/panel_text_strong"
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
@@ -101,7 +101,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:textColor="#6FD49A"
+                    android:textColor="@color/panel_ok"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
@@ -121,7 +121,7 @@
                         android:background="@drawable/companion_key_bg"
                         android:lineSpacingMultiplier="1.25"
                         android:padding="14dp"
-                        android:textColor="#B4C4D0"
+                        android:textColor="@color/panel_text_soft"
                         android:textSize="14sp" />
                 </ScrollView>
 
@@ -133,7 +133,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
-                    android:textColor="#0B131C"
+                    android:textColor="@color/panel_text_on_accent"
                     android:textSize="16sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -152,7 +152,7 @@
                 android:gravity="center"
                 android:padding="6dp"
                 android:text="@string/browse_hosts_hint"
-                android:textColor="#8FA6B6"
+                android:textColor="@color/panel_text_muted"
                 android:textSize="14sp" />
         </LinearLayout>
 
@@ -185,7 +185,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/browse_set_resolution"
-                    android:textColor="#A9C2D2"
+                    android:textColor="@color/panel_text_secondary"
                     android:textSize="14sp" />
 
                 <TextView
@@ -195,7 +195,7 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="--"
-                    android:textColor="#F7F3F7"
+                    android:textColor="@color/panel_text_primary"
                     android:textSize="24sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -215,7 +215,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/browse_set_fps"
-                    android:textColor="#A9C2D2"
+                    android:textColor="@color/panel_text_secondary"
                     android:textSize="14sp" />
 
                 <TextView
@@ -225,7 +225,7 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="--"
-                    android:textColor="#F7F3F7"
+                    android:textColor="@color/panel_text_primary"
                     android:textSize="24sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -252,7 +252,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/companion_bitrate"
-                    android:textColor="#A9C2D2"
+                    android:textColor="@color/panel_text_secondary"
                     android:textSize="14sp" />
 
                 <TextView
@@ -262,7 +262,7 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="--"
-                    android:textColor="#F7F3F7"
+                    android:textColor="@color/panel_text_primary"
                     android:textSize="24sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -282,7 +282,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/browse_set_codec"
-                    android:textColor="#A9C2D2"
+                    android:textColor="@color/panel_text_secondary"
                     android:textSize="14sp" />
 
                 <TextView
@@ -292,7 +292,7 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="--"
-                    android:textColor="#F7F3F7"
+                    android:textColor="@color/panel_text_primary"
                     android:textSize="24sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -319,7 +319,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/browse_set_hdr"
-                    android:textColor="#A9C2D2"
+                    android:textColor="@color/panel_text_secondary"
                     android:textSize="14sp" />
 
                 <TextView
@@ -329,7 +329,7 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="--"
-                    android:textColor="#F7F3F7"
+                    android:textColor="@color/panel_text_primary"
                     android:textSize="24sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -376,7 +376,7 @@
             android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="#8FA6B6"
+            android:textColor="@color/panel_text_muted"
             android:textSize="16sp" />
 
         <TextView
@@ -384,7 +384,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:textColor="#C7D5E0"
+            android:textColor="@color/panel_text_soft"
             android:textSize="16sp" />
     </LinearLayout>
 </LinearLayout>

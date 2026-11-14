@@ -402,7 +402,7 @@ class SecondScreenCompanion(
                 val start = sb.length
                 sb.append("\u25CF")
                 sb.setSpan(
-                    android.text.style.ForegroundColorSpan(segments.getOrNull(i)?.color ?: 0xFF8FA6B6.toInt()),
+                    android.text.style.ForegroundColorSpan(segments.getOrNull(i)?.color ?: androidx.core.content.ContextCompat.getColor(context, R.color.panel_text_muted)),
                     start, sb.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
                 sb.append(' ').append(context.getString(res))

@@ -154,7 +154,7 @@ class BrowseScreenCompanion(
                 findViewById<TextView>(R.id.appPanelName).text = ctx.appName
                 findViewById<TextView>(R.id.appPanelStatus).apply {
                     text = context.getString(if (ctx.running) R.string.browse_app_running else R.string.browse_app_idle)
-                    setTextColor(if (ctx.running) 0xFF6FD49A.toInt() else 0xFF8FA6B6.toInt())
+                    setTextColor(if (ctx.running) androidx.core.content.ContextCompat.getColor(activity, R.color.panel_ok) else androidx.core.content.ContextCompat.getColor(activity, R.color.panel_text_muted))
                 }
                 findViewById<TextView>(R.id.appPanelSummary).text = ctx.summary
                 findViewById<TextView>(R.id.appPanelAction).apply {
@@ -304,12 +304,12 @@ class BrowseScreenCompanion(
                 if (item.iconRes != 0) {
                     addView(android.widget.ImageView(context).apply {
                         setImageResource(item.iconRes)
-                        setColorFilter(0xFF66C0F4.toInt())
+                        setColorFilter(androidx.core.content.ContextCompat.getColor(activity, R.color.panel_accent_light))
                     }, LinearLayout.LayoutParams(dp(26), dp(26)).apply { marginEnd = dp(16) })
                 }
                 addView(TextView(context).apply {
                     text = item.title
-                    setTextColor(0xFFF7FBFF.toInt())
+                    setTextColor(androidx.core.content.ContextCompat.getColor(activity, R.color.panel_text_primary))
                     textSize = 19f
                     typeface = android.graphics.Typeface.DEFAULT_BOLD
                     maxLines = 1
@@ -318,7 +318,7 @@ class BrowseScreenCompanion(
                 if (item.subtitle.isNotEmpty()) {
                     addView(TextView(context).apply {
                         text = item.subtitle
-                        setTextColor(0xFF8FA6B6.toInt())
+                        setTextColor(androidx.core.content.ContextCompat.getColor(activity, R.color.panel_text_muted))
                         textSize = 14f
                         maxLines = 1
                         ellipsize = android.text.TextUtils.TruncateAt.END
@@ -351,7 +351,7 @@ class BrowseScreenCompanion(
             if (visible.isEmpty()) {
                 hostList.addView(TextView(context).apply {
                     text = context.getString(R.string.browse_hosts_empty)
-                    setTextColor(0xFF8FA6B6.toInt())
+                    setTextColor(androidx.core.content.ContextCompat.getColor(activity, R.color.panel_text_muted))
                     textSize = 16f
                     gravity = android.view.Gravity.CENTER
                     layoutParams = LinearLayout.LayoutParams(
@@ -431,9 +431,9 @@ class BrowseScreenCompanion(
             ).joinToString(" · ")
 
             val color = when {
-                online -> 0xFF6FD49A.toInt()
-                offline -> 0xFF8FA6B6.toInt()
-                else -> 0xFF5B6B78.toInt()
+                online -> androidx.core.content.ContextCompat.getColor(activity, R.color.panel_ok)
+                offline -> androidx.core.content.ContextCompat.getColor(activity, R.color.panel_text_muted)
+                else -> androidx.core.content.ContextCompat.getColor(activity, R.color.panel_text_subtle)
             }
             (row.findViewById<View>(R.id.hostDot).background.mutate() as GradientDrawable).setColor(color)
 
