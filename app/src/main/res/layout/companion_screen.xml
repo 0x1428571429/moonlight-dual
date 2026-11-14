@@ -39,64 +39,24 @@
             android:padding="4dp">
 
             <TextView
+                style="@style/CompanionTab"
                 android:id="@+id/tabMonitor"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:background="@drawable/companion_tab_bg"
-                android:focusable="true"
-                android:gravity="center"
-                android:minWidth="60dp"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:text="@string/companion_tab_monitor"
-                android:textColor="@color/companion_tab_text"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:text="@string/companion_tab_monitor" />
 
             <TextView
+                style="@style/CompanionTab"
                 android:id="@+id/tabBitrate"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:background="@drawable/companion_tab_bg"
-                android:focusable="true"
-                android:gravity="center"
-                android:minWidth="60dp"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:text="@string/companion_bitrate"
-                android:textColor="@color/companion_tab_text"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:text="@string/companion_bitrate" />
 
             <TextView
+                style="@style/CompanionTab"
                 android:id="@+id/tabInput"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:background="@drawable/companion_tab_bg"
-                android:focusable="true"
-                android:gravity="center"
-                android:minWidth="60dp"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:text="@string/companion_tab_input"
-                android:textColor="@color/companion_tab_text"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:text="@string/companion_tab_input" />
 
             <TextView
+                style="@style/CompanionTab"
                 android:id="@+id/tabQuick"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:background="@drawable/companion_tab_bg"
-                android:focusable="true"
-                android:gravity="center"
-                android:minWidth="60dp"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:text="@string/companion_tab_quick"
-                android:textColor="@color/companion_tab_text"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:text="@string/companion_tab_quick" />
         </LinearLayout>
 
         <TextView

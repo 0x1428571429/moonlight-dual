@@ -525,4 +525,19 @@
         <item name="android:lineSpacingExtra">4dp</item>
     </style>
 
+
+    <!-- Shared by every tab in the companion (second-screen) bars so they all look identical. -->
+    <style name="CompanionTab">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@drawable/companion_tab_bg</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:minWidth">60dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:textColor">@color/companion_tab_text</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>
