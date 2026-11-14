@@ -395,7 +395,8 @@ class PcView : ThemedActivity(), AdapterFragmentCallbacks, ShakeDetector.Listene
         UiHelper.showDecoderCrashDialog(this)
         inForeground = true
         startComputerUpdates()
-        showBrowseCompanion()
+        // completeOnCreate() runs later (after the GL probe); the companion reads pcGridAdapter.
+        if (completeOnCreateCalled) showBrowseCompanion()
 
         analyticsManager?.startUsageTracking()
         startShakeDetector()
@@ -566,6 +567,7 @@ class PcView : ThemedActivity(), AdapterFragmentCallbacks, ShakeDetector.Listene
         registerBackgroundReceiver()
         registerBackgroundPrefsListener()
         initializeViews()
+        if (inForeground) showBrowseCompanion()
     }
 
     private fun initializeViews() {
