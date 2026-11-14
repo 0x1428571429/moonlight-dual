@@ -45,7 +45,6 @@ class AboutDialogInputTest {
                 onOpenSource = {},
                 onBilibili = {},
                 onGithub = {},
-                onQq = {},
                 onSite = {},
                 onClose = {}
             )
