@@ -9,11 +9,16 @@ class PanelThemeTokensTest {
     private val res = File("src/main/res")
     private val hex = Regex("""(?<![&\w])#[0-9A-Fa-f]{6,8}\b""")
 
+    /** 单屏/双屏共用的主界面样式文件，同样不得写死颜色。 */
+    private val shellFiles = listOf(
+        "layout/activity_pc_view.xml", "layout-land/activity_pc_view.xml", "drawable/steam_rail_bg.xml"
+    )
+
     private fun panelFiles(): List<File> =
         listOf("layout", "drawable", "color", "values").flatMap { dir ->
             File(res, dir).listFiles { f -> f.name.startsWith("companion_") && f.extension == "xml" }
                 ?.toList().orEmpty()
-        }
+        } + shellFiles.map { File(res, it) }
 
     @Test fun panelResourcesContainNoHardcodedColors() {
         val files = panelFiles()

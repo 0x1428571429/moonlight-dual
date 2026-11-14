@@ -1,6 +1,6 @@
 # Moonlight Dual 单屏 / 双屏自适应设计
 
-状态：设计 + 方案（2026-11-14）。P1 已完成，P2–P5 待做；每阶段单独提交。
+状态：P1、P2/P3 已完成；P4（单屏串流）待定，P5 收尾待做。
 
 ## 1. 现状（调研结论）
 
@@ -40,66 +40,29 @@
 - 单测 `PanelThemeTokensTest` 扫描 `companion_*` 资源，出现十六进制或引用了未定义的 token 即失败。
 - 已完成（P1）：双屏截图与改前一致。
 
-## 4. 自适应布局
+## 4. 布局方案（以原来的单屏为基础）
 
-决策函数（纯函数，可单测）：
+修正：应用原本就是单屏，双屏是后来叠加的。所以**单屏沿用原来的布局方式**，只套用我们后来的样式；双屏在此基础上多一块副屏面板。不新做侧栏/抽屉容器。
 
-```
-layoutFor(hasSecondDisplay, windowWidthDp, isStreaming) -> PanelLayout
-  hasSecondDisplay                      -> OnSecondDisplay      (现状，不变)
-  !hasSecondDisplay && !isStreaming:
-      width >= 600dp (横屏/平板/掌机)    -> SideRail            (左侧 tab 栏 + 内容)
-      else (手机竖屏)                    -> BottomBar           (底部 tab 栏)
-  !hasSecondDisplay && isStreaming      -> Drawer               (画面全屏，面板从右/下滑出)
-```
-
-### 浏览态（未串流）
-```
-双屏：主屏=主机网格 | 副屏=[主机][串流设置][菜单]            （不变）
-单屏横屏：┌────┬───────────────────┐   单屏竖屏：┌──────────────┐
-          │主机│ 0x77-H ● 在线      │            │  内容        │
-          │设置│ [主机卡片网格]     │            │              │
-          │菜单│                   │            ├──────────────┤
-          └────┴───────────────────┘            │主机│设置│菜单│
-```
-- 单屏时 3 个 tab 的页面就是副屏那 3 页，原样复用；"主机"页即网格，不再重复一份。
-- 工具栏入口（关于/EasyTier/恢复会话/显示未配对）全部收进"菜单"页，与双屏一致，主屏工具栏隐藏。
-
-### 串流态（单屏）
-```
-┌──────────────────────────┐
-│        游戏画面       ┌──┤  呼出：悬浮球 / 边缘滑动 / Start+Select 长按
-│                       │监│  抽屉内容 = 副屏 4 个 tab（监控/码率/输入/快捷）
-│                       │码│  与 GameMenu 的关系：GameMenu 保留给手柄卡片式设置，
-└───────────────────────┴──┘  抽屉负责"监控 + 快捷操作"，两者互不重复
-```
-- 抽屉半透明，打开时不暂停串流，点空白/返回关闭。
-
-## 5. 组件抽象
-
-- `CompanionPanel`（接口）：`createView(context): View`、`onShown/onHidden`、`handleKey`、`cycleTab`。浏览 3 页和串流 4 页各一个实现，内容与现在的 `BrowsePresentation` / `CompanionPresentation` 里的逻辑相同，只是不再继承 `Presentation`。
-- `PanelHost`（容器）：
-  - `SecondDisplayHost`：用 `Presentation`（现有行为）。
-  - `SideRailHost` / `BottomBarHost`：把面板 View 加进主屏布局的容器。
-  - `DrawerHost`：浮在 `Game` 画面上的抽屉。
-- `PanelLayoutPolicy`：上面的决策函数；窗口尺寸变化（折叠、分屏、旋转）时重算并换容器，面板状态（当前 tab）保留。
-- 触发：`PcView.showBrowseCompanion()` 与 `Game.updateSecondScreenCompanion()` 改为调用 policy 选 host，不再直接 `find` 后创建。
-
-## 6. 实施方案（分阶段，各自提交 + 验证）
-
-| 阶段 | 内容 | 验证 |
+| | 单屏 | 双屏 |
 | --- | --- | --- |
-| P1 主题 token（已完成） | 新增 `panel_colors.xml`；`companion_*` 布局/drawable/style 去硬编码；Presentation 用主题包装；加"禁止十六进制"单测 | 双屏截图与现状一致（视觉无回归）；单测通过 |
-| P2 面板抽象 | 抽出 `CompanionPanel` / `PanelHost`；双屏改走 `SecondDisplayHost`，行为不变 | 双屏模拟器：浏览 3 tab、串流 4 tab 可用 |
-| P3 单屏浏览 | `PanelLayoutPolicy` + `SideRailHost`/`BottomBarHost`；单屏隐藏旧工具栏，入口并入"菜单"页 | 单屏横屏/竖屏截图；各入口可点开 |
-| P4 单屏串流 | `DrawerHost` + 悬浮球/边缘滑动/组合键呼出；与 `GameMenu` 分工 | 单屏串流（mock-sunshine 或真机）下抽屉可开关、不挡画面 |
-| P5 收尾 | 更新 `DUAL_CHANGES.md`、sync skill 的冲突热点表；回归仪器测试 | 失败数不高于基线 22 |
+| 浏览态主屏 | 原布局：横屏=左侧栏（设置/关于/EasyTier/更多）+ 标题 + 主机网格 + 手柄提示；竖屏=顶部工具栏 + Hosts 标题 + 网格 | 同一套，隐藏工具栏和侧栏（`setMainToolbarVisible(false)`），入口改到副屏"菜单"页 |
+| 副屏 | 无 | `BrowseScreenCompanion`（主机/串流设置/菜单） |
+| 串流态 | 原 `GameMenu`（手柄/呼出） | 副屏 `SecondScreenCompanion`（监控/码率/输入/快捷）；`GameMenu` 保留 |
 
-风险与约束：
-- `PcView`、`Game` 是上游冲突热点，改动要小而集中，放在新文件里，主文件只改调用点。
+样式统一靠 token：单屏布局与双屏面板引用同一套 `panel_*` 颜色，所以两种模式看起来是同一个产品。
+
+## 5. 实施方案（分阶段，各自提交 + 验证）
+
+| 阶段 | 内容 | 状态 |
+| --- | --- | --- |
+| P1 主题 token | `panel_colors.xml`；`companion_*` 资源与代码去硬编码；防回退单测 | 完成 |
+| P2/P3 单屏样式对齐 | 单屏主界面（`activity_pc_view` 横/竖、`steam_rail_bg`）颜色并入 token；竖屏补上与横屏一致的壁纸遮罩和 Hosts 标题；单测覆盖这些文件 | 完成，模拟器截图核对 |
+| P4 串流态单屏 | 沿用原 `GameMenu`，评估是否需要把监控/码率并入其中（需真实串流验证） | 待定 |
+| P5 收尾 | 更新 `DUAL_CHANGES.md`；回归仪器测试 | 待做 |
+
+已放弃的方案：把副屏面板抽成可内嵌的"侧栏/底栏/抽屉"容器。原因：单屏本来就有完整入口，新容器会改动 `PcView`/`Game` 这类上游冲突热点，收益小。
+
+## 6. 约束
+- `PcView`、`Game` 是上游冲突热点：样式改动放在资源文件里，Kotlin 只动必要处。
 - 串流态的真实验证需要能连主机（`tools/mock-sunshine` 或 0x77，先 `win-status` 预检）。
-- 手柄导航：侧栏/抽屉要接入现有的焦点与 `handleKey` 逻辑，B 键关闭抽屉。
-
-## 7. 待定
-- 单屏竖屏手机是否也做（默认做，成本低：只是 BottomBar）。
-- 抽屉默认呼出方式（默认悬浮球 + 边缘滑动 + Start+Select 长按，设置里可单独关闭）。
