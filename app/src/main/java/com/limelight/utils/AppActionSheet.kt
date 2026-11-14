@@ -10,6 +10,7 @@ import android.os.Build
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.KeyEvent
+import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
@@ -338,6 +339,7 @@ object AppActionSheet {
             ))
         }
         dialog.setContentView(dialogContent)
+        if (!fullScreen) animateSheetEnter(dialogContent, contentView)
         dialog.setCanceledOnTouchOutside(true)
         dialog.setOnKeyListener { _, keyCode, event ->
             UiDismissKeyHandler.handle(event.action, keyCode, dialog::cancel)
@@ -356,6 +358,16 @@ object AppActionSheet {
                 }
             }
             window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            if (!fullScreen) {
+                // 底部对齐的半屏弹窗：系统会在窗口宽度内给导航栏区域涂黑，
+                // 表现为面板下方一块黑条。让它透明，露出下层界面。
+                window.navigationBarColor = Color.TRANSPARENT
+                window.statusBarColor = Color.TRANSPARENT
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    window.isNavigationBarContrastEnforced = false
+                    window.isStatusBarContrastEnforced = false
+                }
+            }
             window.attributes = window.attributes.apply {
                 width = if (fullScreen) ViewGroup.LayoutParams.MATCH_PARENT
                 else windowWidth(dialog.context)
@@ -380,6 +392,43 @@ object AppActionSheet {
                 }
             }
         }
+    }
+
+    /**
+     * 进场动画等内容排好版再开始：Compose 的首次组合会让第一帧卡 100ms 以上，
+     * 如果动画从窗口出现就计时，卡顿会吃掉整段滑入。这里先保持透明，
+     * 内容有了高度后再从自身底边滑入，之后的每一帧都是纯位移。
+     */
+    private fun animateSheetEnter(container: View, content: View) {
+        container.alpha = 0f
+        var started = false
+        fun start() {
+            if (started) return
+            started = true
+            val distance = container.height.takeIf { it > 0 } ?: content.height
+            container.translationY = distance.toFloat()
+            container.animate()
+                .translationY(0f)
+                .alpha(1f)
+                .setDuration(260L)
+                .setInterpolator(android.view.animation.PathInterpolator(0.4f, 0f, 0.2f, 1f))
+                .start()
+        }
+        content.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+            override fun onLayoutChange(
+                v: View, l: Int, t: Int, r: Int, b: Int, ol: Int, ot: Int, oR: Int, ob: Int
+            ) {
+                if (b - t > 0) {
+                    v.removeOnLayoutChangeListener(this)
+                    // 等这一帧画完再开始，避免首帧耗时被动画吞掉。
+                    container.post { start() }
+                }
+            }
+        })
+        // 兜底：内容迟迟没有高度时也要显示出来。
+        container.postDelayed({
+            if (!started) { started = true; container.alpha = 1f; container.translationY = 0f }
+        }, 600L)
     }
 
     /** Applies the same immersive contract used by the in-stream game menu. */

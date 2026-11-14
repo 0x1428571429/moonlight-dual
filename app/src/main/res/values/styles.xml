@@ -389,7 +389,7 @@
     </style>
 
     <style name="AppActionSheetAnimation">
-        <item name="android:windowEnterAnimation">@anim/app_action_sheet_enter</item>
+        <!-- 进场由 AppActionSheet.animateSheetEnter 在内容排好版后接管，这里只保留退场。 -->
         <item name="android:windowExitAnimation">@anim/app_action_sheet_exit</item>
     </style>
 
