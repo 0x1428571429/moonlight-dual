@@ -17,20 +17,25 @@
 ## 2. 冲突热点（上游改这些文件时要人工合并）
 AppView, AppVisibility, BrowseScreenCompanion, CompanionDisplays, Game, LimelightApplication, PcView, PerformanceOverlayManager, SecondScreenCompanion, GitHubCrownProfileStorePublisher, gamemenu/*（CuteFeatureGuideCard, GameMenu, GameMenuOptions, GameMenuQuickActions, GameMenuScreen）, grid/PcGridAdapter, handbook/HandbookRepository, networkquality/NetworkQualitySheet, nvstream/NvConnection, perfhud/*, preferences/SponsorQrSaver, preferences/StreamSettings, services/StreamNotificationService, ui/AboutDialog, ui/SparklineView, ui/theme/AppShapes, utils/AboutDialogLauncher, utils/AppActionSheet, utils/AppTheme, utils/easytier/*，以及大量 `res/drawable`、`res/layout/companion_*`、`res/color`。
 
-## 3. 分叉后的本地提交（分支 sync-upstream，尚未 push）
+## 3. 分叉后的本地提交（已合入 master 并推送，2026-11-14）
 | 提交 | 说明 |
 | --- | --- |
 | 1adfd398 | fix(pcview)：`completeOnCreate` 之前不显示浏览副屏，修 `pcGridAdapter` 未初始化崩溃 |
 | 9d72722a | style(companion)：选中 tab 文字白色；7 个 tab 统一 `CompanionTab` 样式 |
 | a0725738 | test(androidTest)：AboutDialogInputTest 去掉已删除的 `onQq` 参数 |
 | 0f428bfd / 3d9c0f44 | 合并上游 |
+| 45f4585e | style：面板颜色 token 化（`panel_colors.xml`）+ `PanelThemeTokensTest` + `DUAL_DESIGN.md` |
+| 7cb86434 | style：单屏布局（`activity_pc_view` 横/竖、`steam_rail_bg`）并入 token；竖屏补壁纸遮罩和 Hosts 标题 |
+| 022c5614 | style：单屏左栏/竖屏工具栏换成统一线性图标（`ic_rail_*`，色 `panel_text_secondary`） |
+
+单屏/双屏的设计与阶段见 [DUAL_DESIGN.md](DUAL_DESIGN.md)：一个 App，单屏沿用原布局套 Steam 样式，双屏在其上加副屏面板，两者共用 `panel_*` 颜色。
 
 ## 4. 同步记录
 | 日期 | 上游到 | 冲突 | 结果 |
 | --- | --- | --- | --- |
 | 2026-11-14 | 12.15.7（`7a7069cd`，共 10 个提交） | `AppThemeSheet.kt`（保持删除；上游新增的暗黑桌面图标 `LauncherIcon` 已并入但无 UI 入口） | 构建通过；单元测试 1361 全过；模拟器冒烟：启动、副屏 3 tab 正常 |
 
-## 5. 测试状态（2026-11-14，修复后重跑）
+## 5. 测试状态（2026-11-14，P1/P3 与图标改动后重跑：仪器测试 18 个失败，下面是此前 22 个的分类，仍全为手柄/焦点/触摸注入类，无新增失败类别）
 - 单元测试：1361 通过。
 - 仪器测试：302 个，22 个失败（修复前 45 个）。已修：主题测试按"固定深色+粉色"改写，debug R8 保留 `R$*` 与 `MicrophoneMenuState/Choice`。
 - 剩余 22 个全是手柄 / 焦点 / 触摸注入类（单屏模拟器上同样失败，代码非我们改动，疑似模拟器环境）：
