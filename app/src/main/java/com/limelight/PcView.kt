@@ -62,7 +62,6 @@ import com.limelight.preferences.StreamSettings
 import com.limelight.ui.AdapterFragment
 import com.limelight.ui.AdapterFragmentCallbacks
 import com.limelight.ui.FeatureGuideRegistry
-import com.limelight.ui.MoonWheelDrawable
 import com.limelight.ui.UiDismissKeyHandler
 import com.limelight.ui.ViewFeatureGuide
 import com.limelight.ui.ViewFeatureGuideStep
@@ -859,18 +858,10 @@ class PcView : ThemedActivity(), AdapterFragmentCallbacks, ShakeDetector.Listene
      * 矢量在膨胀时一次性解析主题属性，主题 overlay 更新后不会自动重解析。
      */
     private fun refreshAccentTintedToolbarIcons() {
-        val tint = ColorStateList.valueOf(UiHelper.accentColor(this))
-        findViewById<ImageButton?>(R.id.settingsButton)?.setImageDrawable(
-            MoonWheelDrawable(
-                density = resources.displayMetrics.density,
-                graphiteColor = ContextCompat.getColor(this, R.color.ui_shell_text_primary),
-                accentColor = UiHelper.accentColor(this)
-            )
-        )
-        findViewById<ImageButton?>(R.id.aboutButton)?.imageTintList = tint
-        findViewById<ImageButton?>(R.id.easyTierControlButton)?.imageTintList = tint
-        findViewById<ImageButton?>(R.id.pcToolbarMenuButton)?.imageTintList =
-            ColorStateList.valueOf(ContextCompat.getColor(this, R.color.ui_shell_text_primary))
+        // 侧栏图标统一为同一套线性图标 + 同一个静音色，选中/焦点由按钮自己的环表示。
+        val tint = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.panel_text_secondary))
+        listOf(R.id.settingsButton, R.id.aboutButton, R.id.easyTierControlButton, R.id.pcToolbarMenuButton)
+            .forEach { findViewById<ImageButton?>(it)?.imageTintList = tint }
     }
 
     private fun dpToPx(value: Int): Int {

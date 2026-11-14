@@ -78,6 +78,8 @@
         android:layout_width="@dimen/pc_toolbar_button_size"
         android:layout_height="@dimen/pc_toolbar_button_size"
         android:cropToPadding="false"
+        android:padding="18dp"
+        android:src="@drawable/ic_rail_settings"
         android:scaleType="fitCenter"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -90,11 +92,12 @@
         android:layout_width="@dimen/pc_toolbar_button_size"
         android:layout_height="@dimen/pc_toolbar_button_size"
         android:cropToPadding="false"
+        android:padding="18dp"
+        android:src="@drawable/ic_rail_info"
         android:scaleType="fitCenter"
         android:layout_below="@+id/topSafeArea"
         android:layout_toRightOf="@+id/settingsButton"
         android:layout_toEndOf="@+id/settingsButton"
-        android:src="@drawable/ic_info"
         android:preferKeepClear="true"
         style="?android:attr/borderlessButtonStyle"/>
 
@@ -103,11 +106,12 @@
         android:layout_width="@dimen/pc_toolbar_button_size"
         android:layout_height="@dimen/pc_toolbar_button_size"
         android:cropToPadding="false"
+        android:padding="18dp"
+        android:src="@drawable/ic_rail_network"
         android:scaleType="fitCenter"
         android:layout_below="@+id/topSafeArea"
         android:layout_toRightOf="@+id/aboutButton"
         android:layout_toEndOf="@+id/aboutButton"
-        android:src="@drawable/ic_network_control"
         style="?android:attr/borderlessButtonStyle"/>
     
     <com.limelight.ui.ExpressiveToolbarButton
@@ -115,13 +119,13 @@
         android:layout_width="@dimen/pc_toolbar_button_size"
         android:layout_height="@dimen/pc_toolbar_button_size"
         android:cropToPadding="false"
+        android:padding="18dp"
+        android:src="@drawable/ic_rail_more"
         android:scaleType="fitCenter"
         android:layout_below="@+id/topSafeArea"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:contentDescription="@string/pcview_toolbar_menu"
-        android:src="@drawable/ic_more_vert"
-        android:tint="@color/ui_shell_text_primary"
         android:preferKeepClear="true"
         style="?android:attr/borderlessButtonStyle"/>
 
