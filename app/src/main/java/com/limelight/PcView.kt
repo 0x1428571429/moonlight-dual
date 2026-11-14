@@ -1161,7 +1161,7 @@ class PcView : ThemedActivity(), AdapterFragmentCallbacks, ShakeDetector.Listene
 
         startupUpdateCheckPending = false
         startupUpdateCheckRan = true
-        UpdateManager.checkForUpdatesOnStartup(this)
+        // Moonlight Dual 不做启动时的新版本检测（设置里的“检查更新”入口也已移除）。
     }
 
     private fun resumePendingStartupUpdateCheck() {

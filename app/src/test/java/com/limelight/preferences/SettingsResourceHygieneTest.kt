@@ -403,7 +403,7 @@ class SettingsResourceHygieneTest {
             "checkbox_show_guide_button", "checkbox_half_height_osc_portrait", "seekbar_osc_opacity", "reset_osc",
             "config_sync_export", "config_sync_import", "config_sync_select_directory",
             "checkbox_config_sync_background_sync", "config_sync_import_external_snapshot",
-            "documentation_handbook", "about_us", "open_source_notices", "check_for_updates",
+            "documentation_handbook", "about_us", "open_source_notices",
             "pref_developer_unlock", "sponsor_panel",
         )
         val hiddenBehindPages = requiredMainKeys - mainKeys

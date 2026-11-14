@@ -3553,13 +3553,6 @@ class StreamSettings : ThemedAppCompatActivity() {
                         true
                     }
 
-            // 添加检查更新选项的点击事件
-            findPreference<Preference>("check_for_updates")!!.onPreferenceClickListener =
-                    Preference.OnPreferenceClickListener {
-                        UpdateManager.checkForUpdates(requireActivity(), true)
-                        true
-                    }
-
             // 编解码与屏幕能力检测
             findPreference<Preference>("capability_diagnostic")!!.onPreferenceClickListener =
                     Preference.OnPreferenceClickListener {
