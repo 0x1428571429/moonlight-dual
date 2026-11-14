@@ -30,17 +30,17 @@ AppView, AppVisibility, BrowseScreenCompanion, CompanionDisplays, Game, Limeligh
 | --- | --- | --- | --- |
 | 2026-11-14 | 12.15.7（`7a7069cd`，共 10 个提交） | `AppThemeSheet.kt`（保持删除；上游新增的暗黑桌面图标 `LauncherIcon` 已并入但无 UI 入口） | 构建通过；单元测试 1361 全过；模拟器冒烟：启动、副屏 3 tab 正常 |
 
-## 5. 测试状态（2026-11-14）
+## 5. 测试状态（2026-11-14，修复后重跑）
 - 单元测试：1361 通过。
-- 仪器测试：约 304 个，45 个失败，分类：
-  - 约 8 个测试过时：我们把主题固定为深色+粉色（AppThemeTest 5、PcCardDecorTest 3），需更新用例。
-  - 约 10 个 R8 混淆造成（NoSuchFieldError ×7、NoSuchMethodError ×3），属 debug 构建配置。
-  - 约 17 个窗口焦点类：单屏模拟器上同样失败，代码非我们改动，疑似环境问题。
-  - 约 10 个未诊断：About 对话框 ×3、ViewFeatureGuideFocusTest ×5、StreamViewInputTest、RemoteImeAvoidanceTest、HandbookControllerLinkTest。
+- 仪器测试：302 个，22 个失败（修复前 45 个）。已修：主题测试按"固定深色+粉色"改写，debug R8 保留 `R$*` 与 `MicrophoneMenuState/Choice`。
+- 剩余 22 个全是手柄 / 焦点 / 触摸注入类（单屏模拟器上同样失败，代码非我们改动，疑似模拟器环境）：
+  - 窗口焦点或注入被拒：KeyboardKeyPickerControllerTest 2、DevicePickerNavigationControllerTest 1、VirtualControllerQuickMenuTest 3、StreamViewInputTest 1、RemoteImeAvoidanceTest 1
+  - 手柄按键（A/B/Back）：ViewFeatureGuideFocusTest 5、AboutDialogInputTest 1、AboutDialogLauncherInputTest 3、AppDialogStylerInputTest 2、HandbookControllerLinkTest 1、StreamSettingsDisplayChoiceTest 1
+  - 旋转断言：DevicePickerLayoutTest 1（原因未查）
 - 未验证：配对/串流、串流中副屏（4 个 tab）、触觉修复、设置子页、EasyTier 流程。
 
 ## 6. 待办
-- 修过时测试 + 让 R8 不裁剪测试所需成员，重跑仪器测试。
+- 剩余 22 个手柄/焦点类失败：换带手柄输入支持的模拟器或真机复测，确认是否环境问题。
 - 用 `tools/mock-sunshine` 或真实主机验证配对与串流。
 - 决定是否 push `sync-upstream` 并合入 master。
 - 键盘选择器的 tab 是否也统一样式。
