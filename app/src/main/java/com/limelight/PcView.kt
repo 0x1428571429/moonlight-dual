@@ -3485,7 +3485,9 @@ class PcView : ThemedActivity(), AdapterFragmentCallbacks, ShakeDetector.Listene
             }
             v.layoutParams = lp
         }
-        buildControllerHints()
+        // 单屏（有工具栏）不需要手柄提示；双屏主屏没有工具栏，保留。
+        findViewById<View?>(R.id.controllerHints)?.visibility = if (visible) View.GONE else View.VISIBLE
+        if (!visible) buildControllerHints()
     }
 
     /** 右下角的手柄按键提示：画出来的 A/B/X/Y 圆形按键 + 说明，像主机一样。 */
