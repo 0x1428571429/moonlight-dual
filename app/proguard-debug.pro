@@ -143,3 +143,9 @@
     public int getCrownProfilesFailed();
     public int getPairingItemsFailed();
 }
+
+# Test APK references app resource ids directly; R8 would otherwise drop XML-only fields.
+-keep class com.limelight.R$* { *; }
+# Instrumentation uses Kotlin data-class copy(...) across the APK boundary.
+-keep class com.limelight.gamemenu.MicrophoneMenuState { *; }
+-keep class com.limelight.gamemenu.MicrophoneMenuChoice { *; }

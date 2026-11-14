@@ -4,22 +4,11 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.content.Intent
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
 import android.util.TypedValue
 import android.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.core.app.ActivityScenario
-import androidx.preference.ListPreference
-import androidx.preference.PreferenceGroup
-import com.limelight.preferences.StreamSettings
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -57,12 +46,13 @@ class AppThemeTest {
         return value.data
     }
 
-    @Test fun appearanceAndAccentCanBeCombinedIndependently() {
+    // Moonlight Dual ships one theme: dark + brand pink. Stored preferences are ignored.
+    @Test fun storedAppearanceAndAccentAreIgnoredBecauseTheThemeIsFixed() {
         for (mode in listOf("system", "light", "dark")) {
             for (accent in listOf("pink", "bg")) {
                 AppTheme.save(context, mode, accent)
-                assertEquals(mode, AppTheme.getAppThemeMode(context))
-                assertEquals(accent, AppTheme.getAccentMode(context))
+                assertEquals("dark", AppTheme.getAppThemeMode(context))
+                assertEquals("pink", AppTheme.getAccentMode(context))
             }
         }
     }
@@ -87,87 +77,17 @@ class AppThemeTest {
         }
     }
 
-    @Test fun accentObserverRefreshesOnlyChangesAndCatchesUpAfterStop() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync {
-            prefs.edit().putString("accent_mode", "bg").putInt("you_bg_accent_bucket", 1).commit()
-            val styled = ContextThemeWrapper(context, resource("AppTheme", "style"))
-            AppTheme.applyTo(styled)
-            val owner = object : LifecycleOwner {
-                val registry = LifecycleRegistry(this)
-                override val lifecycle: Lifecycle get() = registry
-            }
-            var refreshes = 0
-            AppTheme.observeAccent(styled, owner) {
-                refreshes++
-                assertEquals(AppTheme.activeBucket(styled).let {
-                    ContextCompat.getColor(styled, resource("you_bg_accent_$it", "color"))
-                }, accentColor(styled))
-            }
-            try {
-                owner.registry.currentState = Lifecycle.State.STARTED
-                prefs.edit().putInt("you_bg_accent_bucket", 2).commit()
-                assertEquals(1, refreshes)
-                prefs.edit().putInt("you_bg_accent_bucket", 2).commit()
-                assertEquals(1, refreshes)
-                owner.registry.currentState = Lifecycle.State.CREATED
-                prefs.edit().putInt("you_bg_accent_bucket", 3).commit()
-                assertEquals(1, refreshes)
-                owner.registry.currentState = Lifecycle.State.STARTED
-                assertEquals(2, refreshes)
-            } finally {
-                owner.registry.currentState = Lifecycle.State.DESTROYED
-            }
-        }
-    }
-
-    @Test fun openSettingsUpdatesSummaryWithoutRecreatingThePage() {
-        prefs.edit().putString("accent_mode", "bg").putInt("you_bg_accent_bucket", 1).commit()
-        ActivityScenario.launch<StreamSettings>(Intent(context, StreamSettings::class.java)).use { scenario ->
-            scenario.onActivity { activity ->
-                val fragment = activity.supportFragmentManager.findFragmentById(resource("preference_container", "id"))
-                    as androidx.preference.PreferenceFragmentCompat
-                fun firstList(group: PreferenceGroup): ListPreference? {
-                    for (i in 0 until group.preferenceCount) {
-                        val child = group.getPreference(i)
-                        if (child is ListPreference && child.summary is Spanned) return child
-                        if (child is PreferenceGroup) firstList(child)?.let { return it }
-                    }
-                    return null
-                }
-                val pref = firstList(fragment.preferenceScreen)!!
-                fun markerColor(): Int {
-                    val summary = pref.summary as Spanned
-                    return summary.getSpans(0, 1, ForegroundColorSpan::class.java).single().foregroundColor
-                }
-                val before = markerColor()
-                prefs.edit().putInt("you_bg_accent_bucket", 8).commit()
-                assertFalse(activity.isFinishing)
-                assertFalse(activity.isChangingConfigurations)
-                assertEquals(accentColor(activity), markerColor())
-                assertNotEquals(before, markerColor())
-                assertSame(fragment, activity.supportFragmentManager.findFragmentById(resource("preference_container", "id")))
-            }
-        }
-    }
-
-    @Test fun removingAccentResetsOverlayAndApplyingPageStylePreservesIt() {
+    @Test fun storedBackgroundAccentNeverOverridesTheBrandAccent() {
         val styled = ContextThemeWrapper(context, resource("AppTheme", "style"))
+        val brand = ContextCompat.getColor(styled, resource("ui_shell_accent", "color"))
         prefs.edit().putString("accent_mode", "bg").putInt("you_bg_accent_bucket", 3).commit()
         AppTheme.applyTo(styled)
-        val expected = ContextCompat.getColor(styled, resource("you_bg_accent_3", "color"))
-        assertEquals(expected, accentColor(styled))
+        assertEquals(brand, accentColor(styled))
         AppTheme.applyStyle(styled, resource("PreferenceThemeWithShadow", "style"))
-        assertEquals(expected, accentColor(styled))
-        prefs.edit().putInt("you_bg_accent_bucket", -1).commit()
-        AppTheme.applyTo(styled)
-        assertEquals(ContextCompat.getColor(styled, resource("ui_shell_accent", "color")), accentColor(styled))
-        prefs.edit().putInt("you_bg_accent_bucket", 3).putString("accent_mode", "pink").commit()
-        AppTheme.applyTo(styled)
-        assertEquals(ContextCompat.getColor(styled, resource("ui_shell_accent", "color")), accentColor(styled))
+        assertEquals(brand, accentColor(styled))
     }
 
     @Test fun explicitNightModeRetainsOtherConfigurationDimensions() {
-        prefs.edit().putString("theme_mode", "dark").putString("accent_mode", "bg").putInt("you_bg_accent_bucket", 3).commit()
         val activityOverride = AppTheme.nightOverride(context)!!
         assertEquals(Configuration.ORIENTATION_UNDEFINED, activityOverride.orientation)
         assertEquals(0, activityOverride.densityDpi)
@@ -181,6 +101,6 @@ class AppThemeTest {
         assertEquals(Configuration.UI_MODE_NIGHT_YES, actual.uiMode and Configuration.UI_MODE_NIGHT_MASK)
         assertEquals(Configuration.ORIENTATION_LANDSCAPE, actual.orientation)
         assertEquals(320, actual.densityDpi)
-        assertEquals(ContextCompat.getColor(themed, resource("you_bg_accent_3", "color")), accentColor(themed))
+        assertEquals(ContextCompat.getColor(themed, resource("ui_shell_accent", "color")), accentColor(themed))
     }
 }

@@ -37,10 +37,11 @@ class PcCardDecorTest {
         return context.createConfigurationContext(configuration)
     }
 
-    @Test fun explicitThemeUsesDesiredPaletteBeforePlatformConfigurationArrives() {
-        // Exercise both directions repeatedly, including the first cache population.
-        for (night in listOf(true, false, true, false)) {
-            preferences.edit().putString("theme_mode", if (night) "dark" else "light").commit()
+    @Test fun fixedDarkPaletteIsUsedRegardlessOfStoredModeOrPlatformConfiguration() {
+        // The theme is fixed to dark; a stored "light" or a light platform config must not leak through.
+        for (stored in listOf("dark", "light", "system", "dark")) {
+            val night = true
+            preferences.edit().putString("theme_mode", stored).commit()
             val stale = configured(!night)
             val expected = configured(night)
             for (bucket in listOf(-1, 0, 6, 11)) {
@@ -74,8 +75,7 @@ class PcCardDecorTest {
         }
     }
 
-    @Test fun cachedGradientsRebuildForDensityAndFollowSystemNightChanges() {
-        preferences.edit().putString("theme_mode", "system").commit()
+    @Test fun cachedGradientsRebuildForDensityAndIgnoreSystemNightChanges() {
         val lowDensity = PcCardDecor.glow(configured(false, 160), 0) as GradientDrawable
         val highDensity = PcCardDecor.glow(configured(false, 320), 0) as GradientDrawable
         val cachedHighDensity = PcCardDecor.glow(configured(false, 320), 0) as GradientDrawable
@@ -84,7 +84,8 @@ class PcCardDecorTest {
         assertEquals(highDensity.gradientRadius, cachedHighDensity.gradientRadius, .01f)
         val light = PcCardDecor.selector(configured(false), 0).current as GradientDrawable
         val dark = PcCardDecor.selector(configured(true), 0).current as GradientDrawable
-        assertFalse(light.colors!!.contentEquals(dark.colors!!))
+        // Single dark theme: the platform night flag no longer changes the card palette.
+        assertArrayEquals(dark.colors, light.colors)
     }
 
     @Test fun wallpaperDecorRetainsOriginalGradientGeometryAndTransparency() {
@@ -98,7 +99,7 @@ class PcCardDecorTest {
             val colored = PcCardDecor.selector(context, 0).apply { this.state = state }.current as GradientDrawable
             assertEquals(original.orientation, colored.orientation)
             assertEquals(original.cornerRadius, colored.cornerRadius, .01f)
-            assertArrayEquals(original.colors!!.map { it ushr 24 }.toIntArray(), colored.colors!!.map { it ushr 24 }.toIntArray())
+            assertArrayEquals(original.colors?.map { it ushr 24 }?.toIntArray(), colored.colors?.map { it ushr 24 }?.toIntArray())
             val originalStack = PcCardDecor.multiSelector(context, -1).apply { this.state = state }.current as LayerDrawable
             val coloredStack = PcCardDecor.multiSelector(context, 0).apply { this.state = state }.current as LayerDrawable
             for (i in 0..2) {
