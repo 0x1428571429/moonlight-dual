@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Strings for the companion (second) screen game menu. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="gm_companion_tab_quick">Quick</string>
+    <string name="gm_companion_tab_input">Input</string>
+    <string name="gm_companion_tab_video">Video</string>
+    <string name="gm_companion_switch_hint">Switch</string>
+    <string name="gm_companion_back">Back</string>
+    <string name="gm_companion_bitrate">Bitrate</string>
+    <string name="gm_companion_gyro">Gyro</string>
+    <string name="gm_companion_super_command">Super command</string>
+    <string name="gm_companion_opacity">Opacity</string>
+    <string name="gm_companion_usb">USB devices</string>
+    <string name="gm_companion_title">Game Menu</string>
+</resources>

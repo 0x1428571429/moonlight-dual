@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gm_companion_tab_quick">快捷</string>
+    <string name="gm_companion_tab_input">输入</string>
+    <string name="gm_companion_tab_video">画面</string>
+    <string name="gm_companion_switch_hint">切换</string>
+    <string name="gm_companion_back">返回</string>
+    <string name="gm_companion_bitrate">码率</string>
+    <string name="gm_companion_gyro">体感 Gyro</string>
+    <string name="gm_companion_super_command">超级指令</string>
+    <string name="gm_companion_opacity">透明度</string>
+    <string name="gm_companion_usb">USB 设备</string>
+    <string name="gm_companion_title">游戏菜单</string>
+</resources>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  副屏字号与尺寸规范（COMPANION_DESIGN_SPEC.md）。View 布局直接引用这里；
+  Compose 用 com.limelight.ui.companion.CompanionType / CompanionDimens，数值必须一致
+  （CompanionDesignTokensTest 校验）。
+-->
+<resources>
+    <dimen name="companion_text_hero">64sp</dimen>
+    <dimen name="companion_text_display">40sp</dimen>
+    <dimen name="companion_text_value">22sp</dimen>
+    <dimen name="companion_text_title">20sp</dimen>
+    <dimen name="companion_text_tile">16sp</dimen>
+    <dimen name="companion_text_label">14sp</dimen>
+    <dimen name="companion_text_caption">12sp</dimen>
+    <dimen name="companion_text_hint">10sp</dimen>
+
+    <dimen name="companion_screen_padding">10dp</dimen>
+    <dimen name="companion_gap">8dp</dimen>
+    <dimen name="companion_tile_padding">10dp</dimen>
+    <dimen name="companion_radius_tile">12dp</dimen>
+    <dimen name="companion_radius_control">10dp</dimen>
+    <dimen name="companion_radius_chip">7dp</dimen>
+    <dimen name="companion_touch_min">44dp</dimen>
+    <dimen name="companion_header_height">44dp</dimen>
+    <dimen name="companion_rail_width">92dp</dimen>
+    <dimen name="companion_icon_chip">36dp</dimen>
+    <dimen name="companion_icon">20dp</dimen>
+</resources>

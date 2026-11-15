@@ -28,6 +28,12 @@ AppView, AppVisibility, BrowseScreenCompanion, CompanionDisplays, Game, Limeligh
 | 7cb86434 | style：单屏布局（`activity_pc_view` 横/竖、`steam_rail_bg`）并入 token；竖屏补壁纸遮罩和 Hosts 标题 |
 | 022c5614 | style：单屏左栏/竖屏工具栏换成统一线性图标（`ic_rail_*`，色 `panel_text_secondary`） |
 
+2026-11-15（双屏加强，单屏不变）：
+- 副屏游戏菜单 `gamemenu/CompanionGameMenu.kt`：有副屏时主页换成 Steam 风格三页布局（快捷/输入/画面 + 暂停/退出），子菜单仍用原布局；`GameMenuScreen` 只加了 `fullscreen` 分支。
+- 副屏设计规范 [COMPANION_DESIGN_SPEC.md](COMPANION_DESIGN_SPEC.md)：`panel_colors.xml` 新增 14 个 token、`companion_type.xml` 字号/尺寸、`ui/companion/CompanionDesign.kt`、`CompanionDesignTokensTest`。
+- 副屏监控页新增"本机网速 ↓/↑"（`DeviceNetSpeedMeter`，`TrafficStats` 每秒采样）。
+- 新增 [AGENTS.md](AGENTS.md)：项目定位（只做双屏加强）与规范入口。
+
 单屏/双屏的设计与阶段见 [DUAL_DESIGN.md](DUAL_DESIGN.md)：一个 App，单屏沿用原布局套 Steam 样式，双屏在其上加副屏面板，两者共用 `panel_*` 颜色。
 
 ## 4. 同步记录

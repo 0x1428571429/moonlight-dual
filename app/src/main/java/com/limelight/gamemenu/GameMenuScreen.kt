@@ -137,6 +137,8 @@ private const val GAME_MENU_WIDE_LAYOUT_MIN_WIDTH_DP = 576
 private const val ORIENTATION_MISMATCH_THRESHOLD = 1.5f
 private const val GAME_MENU_LANDSCAPE_WIDTH_FRACTION = 0.98f
 private const val GAME_MENU_PORTRAIT_WIDTH_FRACTION = 0.95f
+/** 菜单在副屏（3.9 寸）全屏显示时的整体放大倍数。 */
+private const val COMPANION_ZOOM = 1.3f
 internal const val TOUCH_MODE_PRIMARY_PANE_WEIGHT = 1f
 internal const val TOUCH_MODE_SECONDARY_PANE_WEIGHT = 2f
 internal const val GAME_MENU_BACKDROP_TAG = "gameMenuBackdrop"
@@ -235,7 +237,8 @@ internal fun GameMenuScreen(
         onDispose { guideDismissController.clear() }
     }
 
-    GameMenuTheme {
+    // The companion main page has its own absolute sizing; only submenus get the zoom.
+    GameMenuTheme(companionScreen = fullscreen && state.isSubmenu) {
         SequenceShowcase(state = showcaseState) {
             val quickActionGuideModifier = Modifier.sequenceShowcaseTarget(
                 index = 0,
@@ -293,6 +296,7 @@ internal fun GameMenuScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .then(if (fullscreen) Modifier.fillMaxSize() else Modifier)
                             .focusRequester(menuGroupFocusRequester)
                             .focusRestorer(initialFocusRequester)
                             .onFocusChanged { menuHasFocus = it.hasFocus }
@@ -304,7 +308,14 @@ internal fun GameMenuScreen(
                                 textureEnabled = useFabricTexture
                             )
                     ) {
-                        GameMenuContent(
+                        if (fullscreen && !state.isSubmenu) {
+                            CompanionGameMenu(
+                                state = state,
+                                callbacks = callbacks,
+                                initialFocusRequester = initialFocusRequester,
+                                initialFocusModifier = initialFocusModifier
+                            )
+                        } else GameMenuContent(
                             state = state,
                             callbacks = callbacks,
                             wideLayout = wideLayout &&
@@ -550,7 +561,7 @@ private fun gameMenuPalette() = GameMenuPalette(
 )
 
 @Composable
-internal fun GameMenuTheme(content: @Composable () -> Unit) {
+internal fun GameMenuTheme(companionScreen: Boolean = false, content: @Composable () -> Unit) {
     val palette = gameMenuPalette()
     val baseColorScheme = if (palette.darkTheme) darkColorScheme() else lightColorScheme()
     MaterialTheme(
@@ -575,10 +586,13 @@ internal fun GameMenuTheme(content: @Composable () -> Unit) {
             outline = palette.dialogBorder
         ),
         content = {
-            // 菜单文字原本 9–13sp，在 3.9 寸副屏上偏小，整体放大 1.3 倍。
+            // 菜单文字原本 9–13sp，整体放大 1.3 倍。
+            // 在 3.9 寸副屏上全屏显示时仍偏小，再把整个菜单（文字、图标、行高一起）放大
+            // COMPANION_ZOOM 倍；只放大文字会让固定 dp 的行被撑破。
             val density = LocalDensity.current
+            val zoom = if (companionScreen) COMPANION_ZOOM else 1f
             CompositionLocalProvider(
-                LocalDensity provides Density(density.density, density.fontScale * 1.3f),
+                LocalDensity provides Density(density.density * zoom, density.fontScale * 1.3f),
                 content = content
             )
         }
