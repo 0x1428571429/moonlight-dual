@@ -2480,6 +2480,7 @@
     <string name="companion_decode">解码</string>
     <string name="companion_packet_loss">丢包</string>
     <string name="companion_battery">电量</string>
+    <string name="companion_device_net_speed">本机网速</string>
     <string name="companion_latency_chain">延迟链路</string>
     <string name="companion_chain_placeholder">网络 -- · 主机 -- · 解码 -- · 渲染 --</string>
     <string name="companion_current_bitrate">当前串流码率</string>

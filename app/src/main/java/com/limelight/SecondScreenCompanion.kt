@@ -61,6 +61,10 @@ class SecondScreenCompanion(
         if (CompanionDisplays.active?.displayId == displayId) CompanionDisplays.active = null
     }
 
+    private companion object {
+        const val NET_SPEED_INTERVAL_MS = 1000L
+    }
+
     private class CompanionPresentation(
         outerContext: Context,
         display: Display
@@ -90,6 +94,16 @@ class SecondScreenCompanion(
         private lateinit var chainBarViews: List<View>
         private lateinit var monitorChainTotal: TextView
         private lateinit var monitorChainText: TextView
+        private lateinit var monitorNetDown: TextView
+        private lateinit var monitorNetUp: TextView
+        private val netSpeedMeter = DeviceNetSpeedMeter()
+        private val netSpeedHandler = android.os.Handler(android.os.Looper.getMainLooper())
+        private val netSpeedTick = object : Runnable {
+            override fun run() {
+                updateNetSpeed()
+                netSpeedHandler.postDelayed(this, NET_SPEED_INTERVAL_MS)
+            }
+        }
 
         private lateinit var bitrateValue: TextView
         private lateinit var bitrateSeek: SeekBar
@@ -123,9 +137,13 @@ class SecondScreenCompanion(
         override fun onStart() {
             super.onStart()
             startInputControllers()
+            netSpeedMeter.reset()
+            netSpeedHandler.removeCallbacks(netSpeedTick)
+            netSpeedHandler.post(netSpeedTick)
         }
 
         override fun onStop() {
+            netSpeedHandler.removeCallbacks(netSpeedTick)
             gyroController.dispose()
             audioHapticsController.dispose()
             bitrateController()?.stop()
@@ -169,6 +187,8 @@ class SecondScreenCompanion(
             )
             monitorChainTotal = findViewById(R.id.monitorChainTotal)
             monitorChainText = findViewById(R.id.monitorChainText)
+            monitorNetDown = findViewById(R.id.monitorNetDown)
+            monitorNetUp = findViewById(R.id.monitorNetUp)
 
             bitrateValue = findViewById(R.id.bitrateValue)
             bitrateSeek = findViewById(R.id.bitrateSeek)
@@ -409,6 +429,12 @@ class SecondScreenCompanion(
                     .append(String.format(Locale.US, " %.0f", segments.getOrNull(i)?.ms ?: 0f))
             }
             return sb
+        }
+
+        private fun updateNetSpeed() {
+            val speed = netSpeedMeter.sample() ?: return
+            monitorNetDown.text = "↓ " + DeviceNetSpeedMeter.format(speed.downBytesPerSec)
+            monitorNetUp.text = "↑ " + DeviceNetSpeedMeter.format(speed.upBytesPerSec)
         }
 
         private fun formatFps(fps: Float): String {

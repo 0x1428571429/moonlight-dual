@@ -2559,6 +2559,7 @@ Tap again to replace it.</string>
     <string name="companion_decode">Decode</string>
     <string name="companion_packet_loss">Packet loss</string>
     <string name="companion_battery">Battery</string>
+    <string name="companion_device_net_speed">Device network</string>
     <string name="companion_latency_chain">Latency chain</string>
     <string name="companion_chain_placeholder">Network -- · Host -- · Decode -- · Render --</string>
     <string name="companion_current_bitrate">Current stream bitrate</string>
