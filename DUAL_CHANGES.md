@@ -33,6 +33,7 @@ AppView, AppVisibility, BrowseScreenCompanion, CompanionDisplays, Game, Limeligh
 - 副屏设计规范 [COMPANION_DESIGN_SPEC.md](COMPANION_DESIGN_SPEC.md)：`panel_colors.xml` 新增 14 个 token、`companion_type.xml` 字号/尺寸、`ui/companion/CompanionDesign.kt`、`CompanionDesignTokensTest`。
 - 副屏监控页新增"本机网速 ↓/↑"（`DeviceNetSpeedMeter`，`TrafficStats` 每秒采样）。
 - 新增 [AGENTS.md](AGENTS.md)：项目定位（只做双屏加强）与规范入口。
+- 发布流程：`scripts/dual-release.sh` + `.github/workflows/dual-release.yml`，tag `dual-v*`，包名 `com.limelight.dual`，Dual 专用签名；`app/build.gradle` 末尾加了 `dualVersionName/dualVersionCode/releaseAppIdSuffix` 覆盖块（不传时与上游一致）。
 
 单屏/双屏的设计与阶段见 [DUAL_DESIGN.md](DUAL_DESIGN.md)：一个 App，单屏沿用原布局套 Steam 样式，双屏在其上加副屏面板，两者共用 `panel_*` 颜色。
 

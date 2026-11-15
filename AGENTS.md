@@ -40,6 +40,26 @@ sh ./gradlew :app:testNonRootDebugUnitTest -PaudioHapticsSdkDir="$PWD/../moonlig
 - APK：`app/build/outputs/apk/nonRoot/debug/app-nonRoot-debug.apk`，包名 `com.limelight.vplus_debug`。
 - 规范防回退：`PanelThemeTokensTest`、`CompanionDesignTokensTest`。
 
+## 打包发布（GitHub Release）
+
+Dual 有自己的发布流程，和上游 `v*` tag（`android-ci.yml`）互不干扰：
+
+| 项 | 值 |
+| --- | --- |
+| tag | `dual-v<上游版本>-<序号>`，如 `dual-v12.15.7-1`；同一上游版本内序号递增，同步上游后序号从 1 重新开始 |
+| versionName / versionCode | `12.15.7-dual.1` / `MAJOR*10^7+MINOR*10^5+PATCH*10^3+序号`（只增不减才能覆盖升级） |
+| 包名 | `com.limelight.dual`（release 后缀由 `-PreleaseAppIdSuffix=.dual` 覆盖，不改上游那行） |
+| 签名 | Dual 专用密钥 `~/.config/moonlight-dual/release.keystore` + `signing.env`（不进仓库，**丢了就无法覆盖升级，务必备份**） |
+| 产物 | `build/dual-release/Moonlight-Dual-<版本>.apk`、`mapping-<版本>.txt.gz`、`release-notes.md` |
+
+```bash
+scripts/dual-release.sh publish 2          # 本地一条龙：检查 master 干净且已推送 → 构建签名包 → 打 tag 推送 → gh release create
+scripts/dual-release.sh build dual-v12.15.7-2   # 只构建不发布
+```
+
+- CI：`.github/workflows/dual-release.yml` 在推送 `dual-v*` tag 时构建并发布；需要仓库 secrets `DUAL_KEYSTORE_BASE64 / DUAL_KEYSTORE_PASSWORD / DUAL_KEY_ALIAS / DUAL_KEY_PASSWORD`，没配或 Release 已存在则跳过。
+- 发布说明自动取上一个 `dual-v*` tag 以来 master 的提交标题（`--first-parent`），需要时在 Release 页面再手改。
+
 ## 实机验证（AYN Thor）
 
 - `adb install -r <apk>`；副屏截图 `adb exec-out screencap -p -d 4630946482288158084`；副屏点击 `adb shell input -d 4 tap x y`（副屏 1240×1080 px）。

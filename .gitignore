@@ -81,6 +81,7 @@ gradle/gradle-daemon-jvm.properties
 scripts/*
 !scripts/generate_accent_variants.py
 !scripts/test_accent_palette.py
+!scripts/dual-release.sh
 
 # Local mock server generated certs/logs
 tools/mock-sunshine/.generated/

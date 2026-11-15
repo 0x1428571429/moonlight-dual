@@ -1,0 +1,119 @@
+name: Moonlight Dual Release
+
+# Moonlight Dual 自己的发布流程（与上游 android-ci.yml 的 v* 发布互不干扰）。
+# 触发：推送 dual-v<上游版本>-<序号> tag，或手动运行并填 tag。
+# 需要仓库 secrets：DUAL_KEYSTORE_BASE64 / DUAL_KEYSTORE_PASSWORD / DUAL_KEY_ALIAS / DUAL_KEY_PASSWORD。
+# 没配 secrets 时只提示并跳过（可用 scripts/dual-release.sh publish 在本地发布）。
+# Release 已存在（例如本地已发布）时跳过，不覆盖。
+
+on:
+  push:
+    tags: [ 'dual-v*' ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '要发布的 tag（如 dual-v12.15.7-2，需已推送）'
+        required: true
+
+concurrency:
+  group: dual-release-${{ github.event.inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_OAUTH_CLIENT_ID: ${{ vars.OAUTH_CLIENT_ID || secrets.OAUTH_CLIENT_ID }}
+      AUDIO_HAPTICS_SDK_REF: b3f97c3bb7500ea7b1985aea568e5c7b40308d3b
+      AUDIO_HAPTICS_SDK_DIR: ${{ github.workspace }}/.deps/moonlight-audio-haptics
+      HAS_KEY: ${{ secrets.DUAL_KEYSTORE_BASE64 != '' }}
+    steps:
+      - name: Check preconditions
+        id: pre
+        shell: bash
+        run: |
+          if [ "$HAS_KEY" != "true" ]; then
+            echo "::notice::未配置 DUAL_KEYSTORE_* secrets，跳过。可在本地运行 scripts/dual-release.sh publish <序号>。"
+            echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if gh release view "$TAG" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::notice::Release $TAG 已存在，跳过。"
+            echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        if: steps.pre.outputs.skip == 'false'
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ env.TAG }}
+          submodules: recursive
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Checkout audio haptics SDK
+        if: steps.pre.outputs.skip == 'false'
+        uses: actions/checkout@v5
+        with:
+          repository: AlkaidLab/moonlight-audio-haptics
+          ref: ${{ env.AUDIO_HAPTICS_SDK_REF }}
+          path: .deps/moonlight-audio-haptics
+
+      - name: Set up JDK 17
+        if: steps.pre.outputs.skip == 'false'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Set up Android SDK/NDK
+        if: steps.pre.outputs.skip == 'false'
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools platforms;android-36 build-tools;36.0.0 ndk;28.2.13676358 cmake;3.22.1
+
+      - name: Accept Android licenses
+        if: steps.pre.outputs.skip == 'false'
+        run: yes | sdkmanager --licenses > /dev/null
+
+      - name: Unit tests
+        if: steps.pre.outputs.skip == 'false'
+        run: |
+          rm -f local.properties
+          chmod +x gradlew
+          ./gradlew :app:testNonRootDebugUnitTest --no-daemon -PaudioHapticsSdkDir="$AUDIO_HAPTICS_SDK_DIR"
+
+      - name: Build signed APK
+        if: steps.pre.outputs.skip == 'false'
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.DUAL_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.DUAL_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.DUAL_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.DUAL_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          export KEYSTORE_PATH="$RUNNER_TEMP/dual-release.keystore"
+          echo "$KEYSTORE_BASE64" | base64 -d > "$KEYSTORE_PATH"
+          bash scripts/dual-release.sh build "$TAG"
+          rm -f "$KEYSTORE_PATH"
+
+      - name: Create GitHub Release
+        if: steps.pre.outputs.skip == 'false'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd build/dual-release
+          APK=$(ls Moonlight-Dual-*.apk)
+          V=${APK#Moonlight-Dual-}; V=${V%.apk}
+          gh release create "$TAG" -R "$GITHUB_REPOSITORY" \
+            --title "Moonlight Dual $V" \
+            --notes-file release-notes.md \
+            "$APK" $(ls mapping-*.txt.gz 2>/dev/null || true)

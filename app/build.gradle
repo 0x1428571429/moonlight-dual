@@ -236,6 +236,16 @@ android {
             path "src/main/jni/Android.mk"
         }
     }
+
+    // Moonlight Dual 发版覆盖（scripts/dual-release.sh、.github/workflows/dual-release.yml 传入）。
+    // 不传时与上游完全一致。
+    if (project.hasProperty("dualVersionName")) {
+        defaultConfig.versionName = project.property("dualVersionName")
+        defaultConfig.versionCode = (project.property("dualVersionCode") as String).toInteger()
+    }
+    if (project.hasProperty("releaseAppIdSuffix")) {
+        buildTypes.release.applicationIdSuffix = project.property("releaseAppIdSuffix")
+    }
 }
 
 dependencies {
